@@ -89,10 +89,16 @@ body {
   border-radius: 6px;
 }
 
-/* Display headings helper. */
+/* Display headings helper — Bodoni Moda, editorial high-contrast serif. */
 .font-display {
   font-family: var(--font-display);
   font-optical-sizing: auto;
+  letter-spacing: -0.01em;
+}
+/* Large display headings get a touch more drama: tighter tracking. */
+h1.font-display,
+.display-hero {
+  letter-spacing: -0.025em;
 }
 
 /* ---------- Textured / gradient backgrounds (subtle, Emil-style) ---------- */
