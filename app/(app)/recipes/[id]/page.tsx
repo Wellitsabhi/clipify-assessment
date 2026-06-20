@@ -85,7 +85,7 @@ export default function RecipeDetailPage({
             {recipe.ingredients.map((ing) => (
               <li
                 key={ing.id ?? ing.name}
-                className="flex items-baseline justify-between px-4 py-3 text-sm transition-colors hover:bg-surface-2"
+                className="flex items-baseline justify-between px-4 py-3 text-sm"
               >
                 <span className="text-foreground">{ing.name}</span>
                 <span className="text-muted">

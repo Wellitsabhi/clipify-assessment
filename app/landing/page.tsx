@@ -106,9 +106,9 @@ export default function LandingPage() {
             <motion.div
               key={f.title}
               variants={staggerItem}
-              className="group rounded-(--radius-card) border border-border bg-surface p-6 shadow-(--shadow-sm) transition-all duration-300 hover:-translate-y-1 hover:shadow-(--shadow-md)"
+              className="rounded-(--radius-card) border border-border bg-surface p-6 shadow-(--shadow-sm)"
             >
-              <div className="text-3xl transition-transform duration-300 group-hover:scale-110">
+              <div className="text-3xl">
                 {f.icon}
               </div>
               <h3 className="mt-4 font-display text-lg font-semibold">{f.title}</h3>
