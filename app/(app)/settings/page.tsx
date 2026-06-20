@@ -120,14 +120,14 @@ export default function SettingsPage() {
         </div>
       </Card>
 
-      {/* Danger zone */}
-      <Card className="mt-6 border-red-200 p-6">
-        <h2 className="text-sm font-semibold text-danger">Danger zone</h2>
+      {/* Danger zone — neutral styling, no alarmist red text */}
+      <Card className="mt-6 p-6">
+        <h2 className="text-sm font-semibold text-foreground">Danger zone</h2>
         <p className="mt-1 text-sm text-muted">
           Deleting your account is permanent and removes all your recipes and plans.
         </p>
         <Button
-          variant="danger"
+          variant="secondary"
           className="mt-4"
           onClick={() => alert("Account deletion isn't enabled in this demo.")}
         >

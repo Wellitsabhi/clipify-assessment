@@ -137,8 +137,7 @@ function UserChip({ name, plan }: { name: string; plan: string }) {
           <Badge tone="accent">Pro</Badge>
         </div>
       )}
-      {/* Name only on larger screens; avatar is the compact identity on mobile */}
-      <span className="hidden max-w-32 truncate text-sm text-muted lg:inline">{name}</span>
+      {/* Avatar is the sole identity — name lives in the tooltip, not duplicated. */}
       <span
         className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-accent to-citrus text-[11px] font-semibold text-white shadow-(--shadow-sm) ring-2 ring-surface"
         title={name}

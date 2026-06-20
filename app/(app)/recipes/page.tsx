@@ -8,7 +8,6 @@ import {
   Button,
   Card,
   EmptyState,
-  IconButton,
   Input,
   Label,
   RecipeGridSkeleton,
@@ -239,9 +238,13 @@ function RecipeCard({
               View recipe →
             </Link>
             {canDelete && (
-              <IconButton label="Delete recipe" tone="danger" onClick={() => onDelete(recipe.id)}>
+              <button
+                aria-label="Delete recipe"
+                onClick={() => onDelete(recipe.id)}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-subtle transition-colors hover:bg-black/5 hover:text-foreground"
+              >
                 <TrashIcon size={16} />
-              </IconButton>
+              </button>
             )}
           </div>
         </div>
