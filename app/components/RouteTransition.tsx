@@ -1,27 +1,27 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { EASE_OUT_SOFT } from "@/app/components/motion";
 
 /**
- * Smooth enter/exit transition between routes within the app shell. Keyed on
- * pathname so each page animates in as the previous one fades out.
+ * A single, smooth enter transition per route. We intentionally do NOT use
+ * AnimatePresence `mode="wait"` here — waiting for the old page to exit before
+ * the new one enters creates a visible flash/double-render. Instead we key a
+ * single motion.div on the pathname so React swaps content and the new page
+ * fades up once. Pages should not add their own page-level entrance animation.
  */
 export function RouteTransition({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   return (
-    <AnimatePresence mode="wait" initial={false}>
-      <motion.div
-        key={pathname}
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -8 }}
-        transition={{ duration: 0.32, ease: EASE_OUT_SOFT }}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      key={pathname}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.34, ease: EASE_OUT_SOFT }}
+    >
+      {children}
+    </motion.div>
   );
 }

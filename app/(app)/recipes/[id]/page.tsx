@@ -4,7 +4,6 @@ import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { Badge, Card, PageLoader } from "@/app/components/ui";
 import { ArrowLeftIcon, ClockIcon, FlameIcon, UsersIcon } from "@/app/components/icons";
-import { FadeIn } from "@/app/components/motion";
 import { RecipeImage } from "@/app/components/RecipeImage";
 import { api } from "@/app/lib/api";
 import type { Recipe } from "@/app/lib/types";
@@ -49,32 +48,28 @@ export default function RecipeDetailPage({
         <ArrowLeftIcon size={15} /> Recipes
       </Link>
 
-      <FadeIn>
-        <div className="mt-4 overflow-hidden rounded-(--radius-card) border border-border shadow-(--shadow-sm)">
-          <RecipeImage
-            src={recipe.imageUrl}
-            title={recipe.title}
-            className="h-72 w-full object-cover sm:h-96"
-          />
-        </div>
-      </FadeIn>
+      <div className="mt-4 overflow-hidden rounded-(--radius-card) border border-border shadow-(--shadow-sm)">
+        <RecipeImage
+          src={recipe.imageUrl}
+          title={recipe.title}
+          className="h-72 w-full object-cover sm:h-96"
+        />
+      </div>
 
-      <FadeIn delay={0.08}>
-        <div className="mt-8">
-          <div className="flex flex-wrap items-center gap-2">
-            {recipe.cuisine && <Badge>{recipe.cuisine}</Badge>}
-            {tags.map((t) => (
-              <Badge key={t} tone="accent">
-                {t}
-              </Badge>
-            ))}
-          </div>
-          <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-foreground">
-            {recipe.title}
-          </h1>
-          <p className="mt-3 text-lg leading-relaxed text-muted">{recipe.description}</p>
+      <div className="mt-8">
+        <div className="flex flex-wrap items-center gap-2">
+          {recipe.cuisine && <Badge>{recipe.cuisine}</Badge>}
+          {tags.map((t) => (
+            <Badge key={t} tone="accent">
+              {t}
+            </Badge>
+          ))}
         </div>
-      </FadeIn>
+        <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight text-foreground">
+          {recipe.title}
+        </h1>
+        <p className="mt-3 text-lg leading-relaxed text-muted">{recipe.description}</p>
+      </div>
 
       <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <Stat icon={<ClockIcon size={16} />} label="Prep" value={`${recipe.prepTime} min`} />
