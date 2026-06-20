@@ -1,4 +1,4 @@
-import { openai } from "@/lib/openai";
+import { modelId, openai } from "@/lib/openai";
 
 export const CHAT_MODEL = "gpt-4o-mini";
 
@@ -30,7 +30,7 @@ export interface ExtractedRecipe {
 
 export async function generateAssistantReply(history: ChatTurn[]): Promise<string> {
   const completion = await openai.chat.completions.create({
-    model: CHAT_MODEL,
+    model: modelId(CHAT_MODEL),
     messages: [{ role: "system", content: SYSTEM_PROMPT }, ...history],
     temperature: 0.7,
   });
@@ -54,7 +54,32 @@ Return STRICT JSON matching this shape when it IS a recipe:
   "dietaryTags": string | null (comma-separated, e.g. "vegan,gluten-free"),
   "ingredients": [{ "name": string, "amount": string, "unit": string }],
   "imagePrompt": string (a short prompt to generate an appetizing photo of the dish)
-}`;
+}
+
+Respond with raw JSON only — no markdown, no code fences, no commentary.`;
+
+/**
+ * Parse JSON from a model reply that may be wrapped in ```json fences or have
+ * surrounding prose. Returns null if no JSON object can be recovered.
+ */
+function parseJsonLoose(raw: string): Record<string, unknown> | null {
+  let text = raw.trim();
+  // Strip ```json ... ``` or ``` ... ``` fences.
+  const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fence) text = fence[1].trim();
+  // Fall back to the first {...} block.
+  if (!text.startsWith("{")) {
+    const start = text.indexOf("{");
+    const end = text.lastIndexOf("}");
+    if (start !== -1 && end > start) text = text.slice(start, end + 1);
+  }
+  try {
+    const parsed = JSON.parse(text);
+    return parsed && typeof parsed === "object" ? (parsed as Record<string, unknown>) : null;
+  } catch {
+    return null;
+  }
+}
 
 function num(v: unknown, fallback = 0): number {
   const n = typeof v === "number" ? v : Number(v);
@@ -76,8 +101,7 @@ export async function extractRecipe(assistantReply: string): Promise<ExtractedRe
   if (!assistantReply.trim()) return null;
 
   const completion = await openai.chat.completions.create({
-    model: CHAT_MODEL,
-    response_format: { type: "json_object" },
+    model: modelId(CHAT_MODEL),
     temperature: 0,
     messages: [
       { role: "system", content: EXTRACTION_PROMPT },
@@ -88,12 +112,8 @@ export async function extractRecipe(assistantReply: string): Promise<ExtractedRe
   const raw = completion.choices[0]?.message?.content;
   if (!raw) return null;
 
-  let parsed: Record<string, unknown>;
-  try {
-    parsed = JSON.parse(raw);
-  } catch {
-    return null;
-  }
+  const parsed = parseJsonLoose(raw);
+  if (!parsed) return null;
 
   if (parsed.isRecipe !== true) return null;
   const title = str(parsed.title);
