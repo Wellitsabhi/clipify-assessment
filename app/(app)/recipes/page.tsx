@@ -19,10 +19,10 @@ import {
   FlameIcon,
   PlusIcon,
   SearchIcon,
-  SparkleIcon,
   TrashIcon,
   UsersIcon,
 } from "@/app/components/icons";
+import { IdeaIcon } from "@/app/components/AnimatedIcons";
 import { staggerContainer, staggerItem } from "@/app/components/motion";
 import { RecipeImage } from "@/app/components/RecipeImage";
 import { TiltCard } from "@/app/components/TiltCard";
@@ -123,14 +123,16 @@ export default function RecipesPage() {
         href="/chat"
         className="group mb-7 flex items-center gap-3 rounded-(--radius-card) border border-(--border-strong) bg-(--citrus-soft) px-4 py-3 transition-colors duration-200 hover:bg-(--citrus)/10"
       >
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-citrus/15 text-citrus">
-          <SparkleIcon size={16} />
+        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-citrus/12 text-citrus">
+          <IdeaIcon size={17} />
         </span>
         <span className="flex-1 text-sm text-foreground">
           <span className="font-medium">Out of ideas?</span>{" "}
           <span className="text-muted">Ask Chef Ferraro to invent a recipe for you.</span>
         </span>
-        <span className="text-citrus opacity-0 transition-opacity group-hover:opacity-100">→</span>
+        <span className="text-citrus transition-transform duration-200 ease-(--ease-out) group-hover:translate-x-0.5">
+          →
+        </span>
       </Link>
 
       <div className="relative mb-8 max-w-md">

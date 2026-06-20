@@ -115,3 +115,53 @@ export function ChefMark({ size = 40 }: { size?: number }) {
     </svg>
   );
 }
+
+/* ---- Crafted feature/marketing icons (replace emoji) ---- */
+
+function FeatureFrame({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft ring-1 ring-accent/15">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        {children}
+      </svg>
+    </span>
+  );
+}
+
+/** AI chat — speech bubble with a spark. */
+export function AIChatIcon() {
+  return (
+    <FeatureFrame>
+      <path d="M4 5h16v10H9l-4 4v-4H4z" />
+      <path d="M14.5 8.2l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6z" fill="#15803d" stroke="none" />
+    </FeatureFrame>
+  );
+}
+
+/** Catalog — open book. */
+export function CatalogIcon() {
+  return (
+    <FeatureFrame>
+      <path d="M12 6c-1.5-1.2-3.5-1.5-6-1v12c2.5-.5 4.5-.2 6 1m0-12c1.5-1.2 3.5-1.5 6-1v12c-2.5-.5-4.5-.2-6 1m0-12v12" />
+    </FeatureFrame>
+  );
+}
+
+/** Plan — week calendar. */
+export function CalendarWeekIcon() {
+  return (
+    <FeatureFrame>
+      <rect x="4" y="5" width="16" height="15" rx="2" />
+      <path d="M4 9h16M8 3v3M16 3v3M8 13h2M14 13h2M8 16.5h2M14 16.5h2" />
+    </FeatureFrame>
+  );
+}
+
+/** Idea — lightbulb (for the nudge banner). */
+export function IdeaIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.6.6 1 1.3 1 2.1V16h6v-.4c0-.8.4-1.5 1-2.1A6 6 0 0 0 12 3Z" />
+    </svg>
+  );
+}
