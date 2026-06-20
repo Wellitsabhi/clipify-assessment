@@ -37,7 +37,15 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-30 px-3 pt-3 sm:px-5 sm:pt-4">
-      <nav className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 rounded-2xl border border-white/40 bg-surface/60 px-3 pr-2 shadow-(--shadow-md) ring-1 ring-black/3 backdrop-blur-xl sm:px-4">
+      <nav
+        className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 rounded-2xl border border-white/50 bg-surface/45 px-3 pr-2 backdrop-blur-2xl backdrop-saturate-150 sm:px-4"
+        style={{
+          backgroundImage:
+            "linear-gradient(180deg, rgba(255,255,255,0.45), rgba(255,255,255,0.05) 45%)",
+          boxShadow:
+            "inset 0 1px 0 0 rgba(255,255,255,0.7), inset 0 -1px 0 0 rgba(255,255,255,0.12), var(--shadow-md)",
+        }}
+      >
         <div className="flex items-center gap-6">
           <Link href="/recipes" className="group flex items-center gap-2.5">
             <span className="transition-transform duration-300 ease-(--ease-spring) group-hover:rotate-[-8deg] group-hover:scale-105">
@@ -103,8 +111,15 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile nav — floating pill */}
-      <div className="mx-auto mt-2 flex max-w-5xl items-center gap-1.5 overflow-x-auto rounded-xl border border-white/40 bg-surface/60 px-2 py-1.5 shadow-(--shadow-sm) ring-1 ring-black/3 backdrop-blur-xl md:hidden">
+      {/* Mobile nav — floating glass pill */}
+      <div
+        className="mx-auto mt-2 flex max-w-5xl items-center gap-1.5 overflow-x-auto rounded-xl border border-white/50 bg-surface/45 px-2 py-1.5 backdrop-blur-2xl backdrop-saturate-150 md:hidden"
+        style={{
+          backgroundImage:
+            "linear-gradient(180deg, rgba(255,255,255,0.45), rgba(255,255,255,0.05) 50%)",
+          boxShadow: "inset 0 1px 0 0 rgba(255,255,255,0.7), var(--shadow-sm)",
+        }}
+      >
         {LINKS.map((link) => (
           <Link
             key={link.href}
