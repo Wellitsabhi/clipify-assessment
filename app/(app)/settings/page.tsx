@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Badge, Button, Card, PageLoader, Spinner } from "@/app/components/ui";
+import { Badge, Button, Card, Skeleton, Spinner } from "@/app/components/ui";
 import { CheckIcon } from "@/app/components/icons";
 import { api } from "@/app/lib/api";
 import { useUser } from "@/app/lib/useUser";
@@ -47,7 +47,14 @@ export default function SettingsPage() {
     }
   }
 
-  if (loading || !user) return <PageLoader />;
+  if (loading || !user)
+    return (
+      <div className="mx-auto max-w-2xl space-y-6 px-4 py-10 sm:px-6">
+        <Skeleton className="h-9 w-40" />
+        <Skeleton className="h-32 w-full rounded-(--radius-card)" />
+        <Skeleton className="h-48 w-full rounded-(--radius-card)" />
+      </div>
+    );
   const isPro = user.plan === "pro";
 
   return (

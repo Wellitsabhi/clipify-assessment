@@ -140,6 +140,53 @@ export function Card({ children, className }: { children: ReactNode; className?:
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/* Skeletons                                                                  */
+/* -------------------------------------------------------------------------- */
+
+export function Skeleton({ className }: { className?: string }) {
+  return <div className={cx("skeleton rounded-md", className)} aria-hidden />;
+}
+
+export function RecipeGridSkeleton({ count = 6 }: { count?: number }) {
+  return (
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {Array.from({ length: count }).map((_, i) => (
+        <div
+          key={i}
+          className="overflow-hidden rounded-(--radius-card) border border-border bg-surface"
+        >
+          <Skeleton className="h-44 w-full rounded-none" />
+          <div className="space-y-3 p-5">
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-3 w-full" />
+            <Skeleton className="h-3 w-4/5" />
+            <div className="flex gap-3 pt-2">
+              <Skeleton className="h-3 w-12" />
+              <Skeleton className="h-3 w-10" />
+              <Skeleton className="h-3 w-12" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function CardListSkeleton({ count = 4 }: { count?: number }) {
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="rounded-(--radius-card) border border-border bg-surface p-6">
+          <Skeleton className="h-5 w-1/2" />
+          <Skeleton className="mt-3 h-3 w-1/3" />
+          <Skeleton className="mt-6 h-1.5 w-full" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function Badge({
   children,
   tone = "neutral",

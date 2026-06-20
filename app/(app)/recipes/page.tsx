@@ -11,7 +11,7 @@ import {
   IconButton,
   Input,
   Label,
-  PageLoader,
+  RecipeGridSkeleton,
   Spinner,
 } from "@/app/components/ui";
 import {
@@ -122,7 +122,7 @@ export default function RecipesPage() {
       {error && <p className="mb-6 text-sm text-danger">{error}</p>}
 
       {recipes === null ? (
-        <PageLoader />
+        <RecipeGridSkeleton />
       ) : filtered.length === 0 ? (
         <EmptyState
           icon="🍳"

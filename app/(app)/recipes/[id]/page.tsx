@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
-import { Badge, Card, PageLoader } from "@/app/components/ui";
+import { Badge, Card, Skeleton } from "@/app/components/ui";
 import { ArrowLeftIcon, ClockIcon, FlameIcon, UsersIcon } from "@/app/components/icons";
 import { RecipeImage } from "@/app/components/RecipeImage";
 import { api } from "@/app/lib/api";
@@ -34,7 +34,7 @@ export default function RecipeDetailPage({
     );
   }
 
-  if (!recipe) return <PageLoader />;
+  if (!recipe) return <RecipeDetailSkeleton />;
 
   const tags = (recipe.dietaryTags ?? "").split(",").map((t) => t.trim()).filter(Boolean);
   const totalTime = recipe.prepTime + recipe.cookTime;
@@ -123,5 +123,26 @@ function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; va
       </p>
       <p className="mt-1 text-lg font-semibold text-foreground">{value}</p>
     </Card>
+  );
+}
+
+function RecipeDetailSkeleton() {
+  return (
+    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+      <Skeleton className="h-4 w-20" />
+      <Skeleton className="mt-4 h-72 w-full rounded-(--radius-card) sm:h-96" />
+      <Skeleton className="mt-8 h-9 w-2/3" />
+      <Skeleton className="mt-3 h-4 w-full" />
+      <Skeleton className="mt-2 h-4 w-4/5" />
+      <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-16 w-full rounded-(--radius-card)" />
+        ))}
+      </div>
+      <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <Skeleton className="h-64 w-full rounded-(--radius-card) lg:col-span-2" />
+        <Skeleton className="h-40 w-full rounded-(--radius-card)" />
+      </div>
+    </div>
   );
 }

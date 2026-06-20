@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { Button, Card, EmptyState, Input, Label, PageLoader, Spinner } from "@/app/components/ui";
+import { Button, Card, CardListSkeleton, EmptyState, Input, Label, Spinner } from "@/app/components/ui";
 import { Modal } from "@/app/(app)/recipes/page";
 import { PlusIcon } from "@/app/components/icons";
 import { staggerContainer, staggerItem } from "@/app/components/motion";
@@ -49,7 +49,7 @@ export default function MealPlansPage() {
       </div>
 
       {plans === null ? (
-        <PageLoader />
+        <CardListSkeleton />
       ) : plans.length === 0 ? (
         <EmptyState
           icon="🗓️"
