@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { Badge, Button, Card, Skeleton, Spinner } from "@/app/components/ui";
 import { CheckIcon } from "@/app/components/icons";
+import { useConfirm } from "@/app/components/ConfirmProvider";
 import { api } from "@/app/lib/api";
 import { useUser } from "@/app/lib/useUser";
 
@@ -17,6 +19,7 @@ const PRO_FEATURES = [
 
 export default function SettingsPage() {
   const { user, loading, setUser } = useUser();
+  const confirm = useConfirm();
   const [working, setWorking] = useState(false);
   const [error, setError] = useState("");
 
@@ -33,15 +36,22 @@ export default function SettingsPage() {
   }
 
   async function handleCancel() {
-    if (!confirm("Cancel your Pro subscription? You'll keep access until the end of the period."))
-      return;
+    const ok = await confirm({
+      title: "Cancel your Pro subscription?",
+      description: "You'll keep Pro access until the end of the current billing period.",
+      confirmLabel: "Cancel subscription",
+      cancelLabel: "Keep Pro",
+      tone: "danger",
+    });
+    if (!ok) return;
     setWorking(true);
     setError("");
     try {
       await api("/api/stripe/cancel", { method: "POST" });
       setUser(user ? { ...user, plan: "free" } : user);
+      toast.success("Subscription cancelled");
     } catch (e) {
-      setError((e as Error).message);
+      toast.error((e as Error).message);
     } finally {
       setWorking(false);
     }
@@ -129,7 +139,7 @@ export default function SettingsPage() {
         <Button
           variant="secondary"
           className="mt-4"
-          onClick={() => alert("Account deletion isn't enabled in this demo.")}
+          onClick={() => toast("Account deletion isn't enabled in this demo.")}
         >
           Delete account
         </Button>

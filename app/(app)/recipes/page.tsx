@@ -26,12 +26,15 @@ import {
 import { staggerContainer, staggerItem } from "@/app/components/motion";
 import { RecipeImage } from "@/app/components/RecipeImage";
 import { TiltCard } from "@/app/components/TiltCard";
+import { useConfirm } from "@/app/components/ConfirmProvider";
+import { toast } from "sonner";
 import { api } from "@/app/lib/api";
 import { useUser } from "@/app/lib/useUser";
 import type { Recipe } from "@/app/lib/types";
 
 export default function RecipesPage() {
   const { user } = useUser();
+  const confirm = useConfirm();
   const [recipes, setRecipes] = useState<Recipe[] | null>(null);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -80,14 +83,22 @@ export default function RecipesPage() {
   }, [query]);
 
   async function handleDelete(id: string) {
-    if (!confirm("Delete this recipe? This can't be undone.")) return;
+    const recipe = recipes?.find((r) => r.id === id);
+    const ok = await confirm({
+      title: "Delete this recipe?",
+      description: `"${recipe?.title ?? "This recipe"}" will be permanently removed from your catalog.`,
+      confirmLabel: "Delete",
+      tone: "danger",
+    });
+    if (!ok) return;
     const prev = recipes;
     setRecipes((rs) => rs?.filter((r) => r.id !== id) ?? null);
     try {
       await api(`/api/recipes/${id}`, { method: "DELETE" });
+      toast.success("Recipe deleted");
     } catch (e) {
       setRecipes(prev ?? null);
-      alert((e as Error).message);
+      toast.error((e as Error).message);
     }
   }
 
