@@ -1,20 +1,7 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-
+// Entry point: send visitors to the marketing landing page. Authenticated
+// areas redirect to /login themselves when no valid session cookie is present.
 export default function Home() {
-  console.log("[CHAOS render] Home");
-  const router = useRouter();
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      router.push("/recipes");
-    } else {
-      router.push("/login");
-    }
-  }, [router]);
-
-  return null;
+  redirect("/landing");
 }

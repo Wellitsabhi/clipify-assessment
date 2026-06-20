@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
-import ClientChaosShell from "@/app/components/ClientChaosShell";
+import { Geist } from "next/font/google";
 import "./globals.css";
 
+const geist = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist-sans",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "Chef",
-  description: "AI-powered meal planning",
+  title: "MealPlan Pro — AI meal planning that fits your week",
+  description:
+    "Build weekly meal plans from a recipe catalog, generate new recipes with AI, and keep your kitchen organized.",
 };
 
 export default function RootLayout({
@@ -13,10 +20,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
-      <body className="min-h-full flex flex-col">
-        <ClientChaosShell>{children}</ClientChaosShell>
-      </body>
+    <html lang="en" className={`${geist.variable} h-full`}>
+      <body className="min-h-full antialiased">{children}</body>
     </html>
   );
 }

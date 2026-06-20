@@ -1,96 +1,116 @@
 "use client";
 
 import ChefLogo from "@/app/components/ChefLogo";
-import { CookingGifBackdrop } from "@/app/components/CookingGifPlaster";
+import { Button, Input, Label, Spinner } from "@/app/components/ui";
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  console.log("[CHAOS render] LoginPage");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      setError(data.error || "Login failed");
-      return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error || "Login failed. Please try again.");
+        return;
+      }
+      router.replace("/recipes");
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
-    router.push("/recipes");
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center font-serif">
-      <div className="absolute inset-0 z-0 bg-purple-900" aria-hidden />
-      <CookingGifBackdrop stackClass="z-[1]" />
-      <div className="relative z-10 w-full p-4 flex justify-center">
-      <div className="bg-white p-8 w-[450px]">
-        <div className="flex items-center gap-3 mb-2">
-          <ChefLogo size={48} priority />
-          <h1 className="text-4xl font-bold text-orange-600">Chef</h1>
-        </div>
-        <h2 className="text-lg text-gray-500 mb-8">Sign in to your account</h2>
-
+    <AuthShell
+      title="Welcome back"
+      subtitle="Sign in to plan your week."
+      footer={
+        <>
+          New here?{" "}
+          <Link href="/register" className="font-medium text-accent-hover hover:underline">
+            Create an account
+          </Link>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         {error && (
-          <div className="bg-red-100 text-red-800 p-3 mb-4 text-sm">{error}</div>
+          <div className="rounded-lg border border-red-200 bg-(--danger-soft) px-3.5 py-2.5 text-sm text-danger">
+            {error}
+          </div>
         )}
+        <div>
+          <Label htmlFor="email">Email address</Label>
+          <Input
+            id="email"
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            required
+          />
+        </div>
+        <div>
+          <Label htmlFor="password">Password</Label>
+          <Input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            required
+          />
+        </div>
+        <Button type="submit" size="lg" className="w-full" disabled={loading}>
+          {loading ? <Spinner /> : "Sign in"}
+        </Button>
+      </form>
+    </AuthShell>
+  );
+}
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-sm font-bold text-gray-800 mb-1">
-              Email Address
-            </label>
-            <input
-              type="text"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border-2 border-gray-300 p-3 text-sm"
-              placeholder="you@example.com"
-            />
-          </div>
-          <div className="mb-6">
-            <label className="block text-sm font-bold text-gray-800 mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border-2 border-gray-300 p-3 text-sm"
-              placeholder="••••••••"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-lime-500 text-black font-bold py-3 text-lg"
-          >
-            LOG IN
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-gray-500">
-          Don&apos;t have an account?{" "}
-          <a href="/register" className="text-purple-600 underline">
-            Register here
-          </a>
-        </p>
+export function AuthShell({
+  title,
+  subtitle,
+  children,
+  footer,
+}: {
+  title: string;
+  subtitle: string;
+  children: React.ReactNode;
+  footer: React.ReactNode;
+}) {
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
+      <div className="w-full max-w-sm animate-in">
+        <div className="mb-8 flex flex-col items-center text-center">
+          <ChefLogo size={52} href="/landing" />
+          <h1 className="mt-5 text-2xl font-semibold tracking-tight text-foreground">{title}</h1>
+          <p className="mt-1.5 text-sm text-muted">{subtitle}</p>
+        </div>
+        <div className="rounded-(--radius-card) border border-border bg-surface p-6 shadow-(--shadow-md)">
+          {children}
+        </div>
+        <p className="mt-6 text-center text-sm text-muted">{footer}</p>
       </div>
-      </div>
-    </div>
+    </main>
   );
 }

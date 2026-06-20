@@ -6,19 +6,10 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.join(__dirname),
   },
-  env: {
-    DATABASE_URL: process.env.DATABASE_URL,
-    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
-    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
-    STRIPE_RESTRICTED_KEY: process.env.STRIPE_RESTRICTED_KEY,
-    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
-    STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY,
-    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
-    STRIPE_PRO_PRODUCT_ID: process.env.STRIPE_PRO_PRODUCT_ID,
-    STRIPE_PRICE_ID: process.env.STRIPE_PRICE_ID,
-    JWT_SECRET: process.env.JWT_SECRET,
-  },
+  // NOTE: We intentionally do NOT mirror server secrets into `env` here.
+  // Anything placed in `next.config.ts > env` is inlined into the **client**
+  // bundle and shipped to the browser. Server code reads `process.env.*`
+  // directly at runtime; only `NEXT_PUBLIC_*` vars are meant for the client.
 };
 
 export default nextConfig;

@@ -48,12 +48,19 @@ Create a `.env` file in the project root with the variables below (a populated `
 | Variable | Description |
 |----------|-------------|
 | `DATABASE_URL` | SQLite database file path |
-| `OPENAI_API_KEY` | OpenAI API key for Recipe Bot |
-| `STRIPE_SECRET_KEY` | Stripe secret key (test mode) |
-| `STRIPE_PUBLISHABLE_KEY` | Stripe publishable key (test mode) |
+| `JWT_SECRET` | **Required.** Secret for signing session JWTs. Generate with `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`. The app throws at boot if unset. |
+| `OPENAI_API_KEY` | OpenAI API key for the Recipe Bot |
+| `GEMINI_API_KEY` | Google AI Studio key for recipe image generation (optional; image gen is best-effort) |
+| `STRIPE_SECRET_KEY` | Stripe secret key (test mode) — **server only** |
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret |
-| `JWT_SECRET` | Secret for signing JWT tokens |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Public Stripe key for frontend |
+| `STRIPE_PRICE_ID` / `STRIPE_PRO_PRODUCT_ID` | Pin a Pro price, or resolve one from a product |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Public Stripe key for the frontend |
+| `NEXT_PUBLIC_APP_URL` | Public origin for Stripe redirect URLs (optional; inferred from the request if unset) |
+
+> **Security note:** secrets are read from `process.env` on the server only and are
+> **never** exposed to the browser. Do not add server secrets to `next.config.ts`'s
+> `env` block (that inlines them into the client bundle). Only `NEXT_PUBLIC_*` vars
+> are sent to the client. See [NOTES.md](./NOTES.md).
 
 **Product goals and seeded test accounts** are in [TEST_INSTRUCTIONS.md](./TEST_INSTRUCTIONS.md).
 
@@ -78,12 +85,24 @@ app/
 │   ├── success/page.tsx         # Stripe success return
 │   └── cancel/page.tsx          # Stripe cancel return
 └── api/
-    ├── auth/{login,register,me} # Authentication endpoints
-    ├── recipes/                 # Recipe CRUD
+    ├── auth/{login,register,me,logout} # Cookie-based JWT auth
+    ├── recipes/                 # Recipe CRUD (owner-scoped mutations)
     ├── chat/                    # Recipe Bot AI endpoint
-    ├── meal-plans/              # Meal plan management
-    └── stripe/{checkout,webhook}# Stripe integration
+    ├── meal-plans/              # Meal plan management (owner-scoped)
+    └── stripe/{checkout,webhook,cancel} # Stripe integration
 ```
+
+`proxy.ts` (Next.js 16's renamed middleware) provides an optimistic, cookie-based
+auth redirect for the app pages; the API routes perform the real JWT verification
+and ownership checks.
+
+### Auth & data flow
+
+Login/register set a `Secure`, `httpOnly`, `SameSite=Lax` cookie containing a
+signed JWT (`{ userId, email }`, 7-day expiry). The browser sends it automatically;
+the client never reads the token. Passwords are hashed with bcrypt (12 rounds).
+Each API route resolves the session via `requireSession` and enforces per-user
+ownership before reading or mutating rows.
 
 ### Database Schema
 
@@ -101,7 +120,18 @@ The app uses Stripe Checkout in test mode for upgrading from Free to Pro:
 1. User clicks "Upgrade to Pro" on the settings page
 2. Server creates a Stripe Checkout Session with the Pro price
 3. User is redirected to Stripe's hosted checkout page
-4. On success, webhook updates the user's plan to "pro"
+4. On success, the webhook upgrades the user's plan to `pro`
+5. Cancelling (`/api/stripe/cancel`) cancels active subscriptions and reverts to `free`;
+   the `customer.subscription.deleted` webhook also reverts the plan.
 
-Create test products in your Stripe dashboard and set the `STRIPE_PRICE_ID` environment variable.
-# clipify-assessment
+Create a test product/price in your Stripe dashboard and set `STRIPE_PRICE_ID`
+(or `STRIPE_PRO_PRODUCT_ID`). Forward webhooks locally with:
+
+```bash
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+```
+
+---
+
+For a full account of the security/correctness/UX work done on this codebase, see
+[NOTES.md](./NOTES.md).

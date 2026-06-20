@@ -1,162 +1,166 @@
 "use client";
 
-import ChefLogo from "@/app/components/ChefLogo";
-import { CookingGifBackdrop } from "@/app/components/CookingGifPlaster";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { Button, Spinner } from "@/app/components/ui";
+import { api } from "@/app/lib/api";
+import type { Recipe } from "@/app/lib/types";
 
 interface Message {
   id?: string;
   role: "user" | "assistant";
   content: string;
+  recipe?: Recipe | null;
 }
 
+const SUGGESTIONS = [
+  "A high-protein dinner under 30 minutes",
+  "Something vegan with chickpeas",
+  "A cozy soup for a cold night",
+];
+
 export default function ChatPage() {
-  console.log("[CHAOS render] ChatPage");
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [booting, setBooting] = useState(true);
+  const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    fetch("/api/chat", {
-      method: "GET",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    })
-      .then((r) => r.json())
-      .catch(() => {});
-
-    const e = process.env as Record<string, string | undefined>;
-    (
-      [
-        "DATABASE_URL",
-        "OPENAI_API_KEY",
-        "GEMINI_API_KEY",
-        "STRIPE_RESTRICTED_KEY",
-        "STRIPE_SECRET_KEY",
-        "STRIPE_PUBLISHABLE_KEY",
-        "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
-        "STRIPE_WEBHOOK_SECRET",
-        "STRIPE_PRO_PRODUCT_ID",
-        "STRIPE_PRICE_ID",
-        "JWT_SECRET",
-      ] as const
-    ).forEach((k) => {
-      void e[k];
-    });
-
-    if (token) {
-      fetch("/api/auth/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((r) => r.json())
-        .then(() => {});
-    }
+    api<{ messages: Message[] }>("/api/chat")
+      .then((data) => setMessages(data.messages ?? []))
+      .catch(() => {})
+      .finally(() => setBooting(false));
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, loading]);
 
-  async function handleSend() {
-    if (!input.trim() || loading) return;
+  async function send(text: string) {
+    const message = text.trim();
+    if (!message || loading) return;
 
-    const userMessage: Message = { role: "user", content: input };
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev) => [...prev, { role: "user", content: message }]);
     setInput("");
     setLoading(true);
 
-    const token = localStorage.getItem("token");
-
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ message: input }),
-    });
-
-    const data = await res.json();
-
-    const assistantMessage: Message = {
-      role: "assistant",
-      content: data.message,
-    };
-    setMessages((prev) => [...prev, assistantMessage]);
-    setLoading(false);
+    try {
+      const data = await api<{ message: string; recipe: Recipe | null }>("/api/chat", {
+        method: "POST",
+        body: { message },
+      });
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: data.message, recipe: data.recipe },
+      ]);
+    } catch (e) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: `⚠️ ${(e as Error).message}` },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
-    <div className="relative flex h-[calc(100vh-64px)] flex-col">
-      <div className="absolute inset-0 z-0 bg-gray-100" aria-hidden />
-      <CookingGifBackdrop position="absolute" stackClass="z-[1]" />
-      <div className="relative z-10 flex min-h-0 flex-1 flex-col">
-      <div className="bg-indigo-900 text-white px-6 py-3 flex justify-between items-center">
-        <h1 className="text-xl font-bold font-serif flex items-center gap-2">
-          <ChefLogo size={32} />
-          🤖 Chef Ferraro
-        </h1>
+    <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-3xl flex-col px-4 sm:px-6">
+      <div className="border-b border-border py-5">
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">Chef Ferraro</h1>
+        <p className="text-sm text-muted">
+          Describe what you&apos;re craving and I&apos;ll create a recipe for your catalog.
+        </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
-        {messages.length === 0 && (
-          <div className="text-center text-gray-400 mt-20">
-            <p className="text-4xl mb-4">👨‍🍳</p>
-            <p className="text-lg">Ask Chef Ferraro about any recipe or food!</p>
-            <p className="text-sm mt-2">
-              Try: &quot;Give me a high-protein dinner recipe&quot;
-            </p>
+      <div className="flex-1 space-y-5 overflow-y-auto py-6">
+        {booting ? (
+          <div className="flex justify-center pt-10">
+            <Spinner className="h-5 w-5 text-subtle" />
           </div>
-        )}
-
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-          >
-            <div
-              className={`max-w-[70%] p-4 rounded-lg ${
-                msg.role === "user"
-                  ? "bg-lime-500 text-black"
-                  : "bg-white text-gray-800 border border-gray-200"
-              }`}
-            >
-              <p className="whitespace-pre-wrap text-sm">{msg.content}</p>
+        ) : messages.length === 0 ? (
+          <div className="pt-10 text-center">
+            <p className="text-4xl">👨‍🍳</p>
+            <p className="mt-4 text-foreground">What should we cook today?</p>
+            <div className="mt-6 flex flex-wrap justify-center gap-2">
+              {SUGGESTIONS.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => send(s)}
+                  className="rounded-full border border-(--border-strong) bg-surface px-3.5 py-1.5 text-sm text-muted transition-colors hover:border-accent hover:text-accent-hover"
+                >
+                  {s}
+                </button>
+              ))}
             </div>
           </div>
-        ))}
+        ) : (
+          messages.map((msg, i) => <Bubble key={msg.id ?? i} msg={msg} />)
+        )}
 
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-white p-4 rounded-lg border border-gray-200">
-              <p className="text-gray-400 text-sm">Chef Ferraro is thinking...</p>
+            <div className="rounded-2xl rounded-bl-sm border border-border bg-surface px-4 py-3 text-sm text-muted">
+              <Spinner className="h-4 w-4" /> Chef Ferraro is thinking…
             </div>
           </div>
         )}
-
-        <div ref={messagesEndRef} />
+        <div ref={endRef} />
       </div>
 
-      <div className="border-t border-gray-300 p-4 bg-white">
-        <div className="flex gap-2">
+      <div className="border-t border-border py-4">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            send(input);
+          }}
+          className="flex gap-2"
+        >
           <input
-            type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Ask Chef Ferraro anything..."
-            className="flex-1 border-2 border-purple-300 rounded-none p-3 text-sm"
+            placeholder="Ask Chef Ferraro anything…"
+            className="flex-1 rounded-full border border-(--border-strong) bg-surface px-4 py-3 text-sm text-foreground placeholder:text-subtle focus:border-accent focus:outline-none focus:ring-2 focus:ring-(--accent-ring)/50"
           />
-          <button
-            onClick={handleSend}
-            disabled={loading}
-            className="bg-orange-500 text-white px-8 py-3 font-bold text-sm"
-          >
+          <Button type="submit" size="lg" disabled={loading || !input.trim()} className="rounded-full">
             Send
-          </button>
-        </div>
+          </Button>
+        </form>
       </div>
+    </div>
+  );
+}
+
+function Bubble({ msg }: { msg: Message }) {
+  const isUser = msg.role === "user";
+  return (
+    <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+      <div className={`max-w-[85%] ${isUser ? "" : "space-y-3"}`}>
+        <div
+          className={`whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+            isUser
+              ? "rounded-br-sm bg-accent text-white"
+              : "rounded-bl-sm border border-border bg-surface text-foreground"
+          }`}
+        >
+          {msg.content}
+        </div>
+        {msg.recipe && (
+          <Link
+            href={`/recipes/${msg.recipe.id}`}
+            className="flex items-center gap-3 rounded-xl border border-border bg-accent-soft p-3 transition-colors hover:border-accent"
+          >
+            <img
+              src={msg.recipe.imageUrl}
+              alt={msg.recipe.title}
+              className="h-12 w-12 rounded-lg object-cover"
+            />
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-accent-hover">Recipe added to your catalog</p>
+              <p className="truncate text-sm font-semibold text-foreground">{msg.recipe.title}</p>
+            </div>
+          </Link>
+        )}
       </div>
     </div>
   );

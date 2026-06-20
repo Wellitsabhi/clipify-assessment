@@ -1,6 +1,11 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
+
+// Seed passwords are hashed exactly like real registrations (bcrypt, 12 rounds)
+// so login works against the same verification path. Plaintext is never stored.
+const hash = (plain: string) => bcrypt.hash(plain, 12);
 
 async function main() {
   await prisma.chatMessage.deleteMany();
@@ -13,7 +18,7 @@ async function main() {
   const alice = await prisma.user.create({
     data: {
       email: "alice@example.com",
-      password: "password123",
+      password: await hash("password123"),
       name: "Alice Johnson",
       plan: "pro",
     },
@@ -22,7 +27,7 @@ async function main() {
   const bob = await prisma.user.create({
     data: {
       email: "bob@example.com",
-      password: "bob2024",
+      password: await hash("bob2024"),
       name: "Bob Smith",
       plan: "free",
     },
@@ -31,7 +36,7 @@ async function main() {
   const charlie = await prisma.user.create({
     data: {
       email: "charlie@example.com",
-      password: "letmein",
+      password: await hash("letmein"),
       name: "Charlie Davis",
       plan: "free",
     },
@@ -564,6 +569,23 @@ async function main() {
     },
   });
 
+  const mealPlan3 = await prisma.mealPlan.create({
+    data: {
+      name: "Plant-Forward Week",
+      startDate: new Date("2026-04-13"),
+      endDate: new Date("2026-04-19"),
+      userId: charlie.id,
+      recipes: {
+        create: [
+          { day: "monday", mealType: "breakfast", recipeId: createdRecipes[15].id },
+          { day: "tuesday", mealType: "lunch", recipeId: createdRecipes[12].id },
+          { day: "wednesday", mealType: "dinner", recipeId: createdRecipes[6].id },
+          { day: "friday", mealType: "dinner", recipeId: createdRecipes[9].id },
+        ],
+      },
+    },
+  });
+
   await prisma.chatMessage.createMany({
     data: [
       {
@@ -613,9 +635,10 @@ async function main() {
     ],
   });
 
+  const mealPlanCount = [mealPlan1, mealPlan2, mealPlan3].length;
   console.log("Seed data created successfully!");
   console.log(
-    `Created ${3} users, ${createdRecipes.length} recipes, 2 meal plans, 8 chat messages`
+    `Created 3 users, ${createdRecipes.length} recipes, ${mealPlanCount} meal plans, 8 chat messages`
   );
 }
 

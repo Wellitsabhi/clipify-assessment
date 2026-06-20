@@ -1,31 +1,29 @@
-"use client";
-
+import Link from "next/link";
 import ChefLogo from "@/app/components/ChefLogo";
-import { CookingGifBackdrop } from "@/app/components/CookingGifPlaster";
 
 export default function CheckoutSuccessPage() {
-  console.log("[CHAOS render] CheckoutSuccessPage");
   return (
-    <div className="relative flex min-h-screen items-center justify-center">
-      <div className="absolute inset-0 z-0 bg-green-50" aria-hidden />
-      <CookingGifBackdrop stackClass="z-[1]" />
-      <div className="relative z-10 text-center">
-        <div className="flex justify-center mb-4">
-          <ChefLogo size={56} priority />
+    <main className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="w-full max-w-md animate-in rounded-(--radius-card) border border-border bg-surface p-8 text-center shadow-(--shadow-md)">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-soft text-2xl">
+          ✓
         </div>
-        <h1 className="text-4xl font-bold text-green-700 mb-4">
-          Payment Successful!
+        <h1 className="mt-5 text-2xl font-semibold tracking-tight text-foreground">
+          You&apos;re on Pro
         </h1>
-        <p className="text-gray-600 mb-6">
-          Welcome to Pro! Your account has been upgraded.
+        <p className="mt-2 text-sm text-muted">
+          Thanks for upgrading. Your account now has every Pro feature unlocked.
         </p>
-        <a
+        <Link
           href="/recipes"
-          className="bg-green-600 text-white px-6 py-3 rounded font-bold"
+          className="mt-6 inline-block rounded-lg bg-accent px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
         >
-          Go to Recipes
-        </a>
+          Go to your recipes
+        </Link>
+        <div className="mt-6 flex justify-center opacity-60">
+          <ChefLogo size={28} href={null} />
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

@@ -1,31 +1,29 @@
-"use client";
-
+import Link from "next/link";
 import ChefLogo from "@/app/components/ChefLogo";
-import { CookingGifBackdrop } from "@/app/components/CookingGifPlaster";
 
 export default function CheckoutCancelPage() {
-  console.log("[CHAOS render] CheckoutCancelPage");
   return (
-    <div className="relative flex min-h-screen items-center justify-center">
-      <div className="absolute inset-0 z-0 bg-red-50" aria-hidden />
-      <CookingGifBackdrop stackClass="z-[1]" />
-      <div className="relative z-10 text-center">
-        <div className="flex justify-center mb-4">
-          <ChefLogo size={48} priority />
+    <main className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="w-full max-w-md animate-in rounded-(--radius-card) border border-border bg-surface p-8 text-center shadow-(--shadow-md)">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 text-2xl">
+          ↩
         </div>
-        <h1 className="text-3xl font-bold text-red-700 mb-4">
-          Payment Cancelled
+        <h1 className="mt-5 text-2xl font-semibold tracking-tight text-foreground">
+          Checkout cancelled
         </h1>
-        <p className="text-gray-600 mb-6">
-          Your checkout was cancelled. No charges were made.
+        <p className="mt-2 text-sm text-muted">
+          No charges were made. You can upgrade anytime from settings.
         </p>
-        <a
+        <Link
           href="/settings"
-          className="bg-red-600 text-white px-6 py-3 rounded font-bold"
+          className="mt-6 inline-block rounded-lg border border-(--border-strong) bg-surface px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-background"
         >
-          Back to Settings
-        </a>
+          Back to settings
+        </Link>
+        <div className="mt-6 flex justify-center opacity-60">
+          <ChefLogo size={28} href={null} />
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

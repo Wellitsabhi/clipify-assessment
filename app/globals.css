@@ -1,272 +1,99 @@
 @import "tailwindcss";
 
+/*
+  MealPlan Pro — design system
+  A calm, warm, food-forward palette. One confident accent (emerald),
+  generous neutrals, a real type scale, and restrained motion.
+*/
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #faf9f6; /* warm paper */
+  --surface: #ffffff;
+  --foreground: #1c1917; /* stone-900 */
+  --muted: #78716c; /* stone-500 */
+  --subtle: #a8a29e; /* stone-400 */
+  --border: #ece9e3;
+  --border-strong: #ddd9d1;
+
+  --accent: #047857; /* emerald-700 */
+  --accent-hover: #065f46; /* emerald-800 */
+  --accent-soft: #ecfdf5; /* emerald-50 */
+  --accent-ring: #6ee7b7; /* emerald-300 */
+
+  --danger: #b91c1c;
+  --danger-soft: #fef2f2;
+
+  --radius: 0.75rem;
+  --shadow-sm: 0 1px 2px rgba(28, 25, 23, 0.06);
+  --shadow-md: 0 4px 16px -4px rgba(28, 25, 23, 0.1), 0 2px 6px -2px rgba(28, 25, 23, 0.06);
+  --shadow-lg: 0 12px 40px -12px rgba(28, 25, 23, 0.18);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --radius-card: var(--radius);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--border);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* --- Client chaos: CPU-heavy visuals + hidden system cursor (see ClientChaosShell) --- */
-html.chaos-cursor-none,
-html.chaos-cursor-none * {
-  cursor: none !important;
+::selection {
+  background: var(--accent-ring);
+  color: var(--accent-hover);
 }
 
-@keyframes chaos-pulse-glow {
-  0%,
-  100% {
-    filter: contrast(1);
-    box-shadow:
-      inset 0 0 70px rgba(124, 58, 237, 0.09),
-      inset 0 0 120px rgba(88, 28, 135, 0.06);
-  }
-  50% {
-    filter: contrast(1.03);
-    box-shadow:
-      inset 0 0 90px rgba(124, 58, 237, 0.12),
-      inset 0 0 140px rgba(88, 28, 135, 0.08);
-  }
+/* Accessible focus ring for keyboard users across interactive elements. */
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
 }
 
-@keyframes chaos-heat-shimmer {
-  0% {
-    opacity: 0.12;
-    transform: scale(1);
-    backdrop-filter: blur(12px) brightness(1);
-  }
-  50% {
-    opacity: 0.18;
-    transform: scale(1.01);
-    backdrop-filter: blur(16px) brightness(1.04);
-  }
-  100% {
-    opacity: 0.14;
-    transform: scale(1);
-    backdrop-filter: blur(14px) brightness(1.02);
-  }
-}
-
-.chaos-root.chaos-cpu-burn {
-  position: relative;
-  isolation: isolate;
-  animation: chaos-pulse-glow 2.2s ease-in-out infinite;
-}
-
-.chaos-heat-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 2147483645;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 25% 15%, rgba(192, 132, 252, 0.14), transparent 42%),
-    radial-gradient(circle at 78% 88%, rgba(167, 139, 250, 0.12), transparent 38%),
-    radial-gradient(circle at 50% 50%, rgba(147, 51, 234, 0.08), transparent 55%);
-  animation: chaos-heat-shimmer 1.4s ease-in-out infinite alternate;
-  mix-blend-mode: overlay;
-}
-
-/* --- /landing: motion kept for flavor; no hue-rainbow cycling --- */
-@keyframes landing-bg-pan {
-  0% {
-    background-position: 0% 0%;
-  }
-  50% {
-    background-position: 100% 80%;
-  }
-  100% {
-    background-position: 0% 100%;
-  }
-}
-
-@keyframes landing-wobble {
-  0%,
-  100% {
-    transform: rotate(-2.5deg) scale(1);
-  }
-  50% {
-    transform: rotate(3deg) scale(1.04);
-  }
-}
-
-@keyframes landing-jitter {
-  0% {
-    transform: translate(0, 0) skewX(0deg);
-  }
-  20% {
-    transform: translate(3px, -4px) skewX(-1deg);
-  }
-  40% {
-    transform: translate(-4px, 2px) skewX(1.2deg);
-  }
-  60% {
-    transform: translate(2px, 3px) skewX(-0.5deg);
-  }
-  80% {
-    transform: translate(-2px, -2px) skewX(0.8deg);
-  }
-  100% {
-    transform: translate(0, 0) skewX(0deg);
-  }
-}
-
-@keyframes landing-pulse-glow {
-  0%,
-  100% {
-    text-shadow:
-      0 0 10px rgba(232, 121, 249, 0.45),
-      0 0 22px rgba(168, 85, 247, 0.28);
-  }
-  50% {
-    text-shadow:
-      0 0 14px rgba(232, 121, 249, 0.55),
-      0 0 28px rgba(168, 85, 247, 0.35);
-  }
-}
-
-@keyframes landing-spin-slow {
+@keyframes fade-in-up {
   from {
-    transform: rotate(0deg) scale(1);
+    opacity: 0;
+    transform: translateY(6px);
   }
   to {
-    transform: rotate(360deg) scale(1.08);
-  }
-}
-
-@keyframes landing-border-rave {
-  0%,
-  100% {
-    box-shadow:
-      inset 0 0 40px rgba(168, 85, 247, 0.22),
-      0 0 18px rgba(168, 85, 247, 0.28);
-  }
-  50% {
-    box-shadow:
-      inset 0 0 52px rgba(168, 85, 247, 0.28),
-      0 0 24px rgba(168, 85, 247, 0.34);
-  }
-}
-
-@keyframes landing-blur-breathe {
-  0%,
-  100% {
-    backdrop-filter: blur(8px) brightness(1);
-    opacity: 0.85;
-  }
-  50% {
-    backdrop-filter: blur(14px) brightness(1.06);
-    opacity: 0.92;
-  }
-}
-
-@keyframes landing-scale-yuck {
-  0%,
-  100% {
-    transform: scale(1) rotate(0deg);
-  }
-  25% {
-    transform: scale(1.12) rotate(-2deg);
-  }
-  75% {
-    transform: scale(0.92) rotate(2deg);
-  }
-}
-
-@keyframes landing-shake-x {
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-6px);
-  }
-  75% {
-    transform: translateX(6px);
-  }
-}
-
-.landing-root {
-  background-size: 220% 220%;
-  animation: landing-bg-pan 5s ease-in-out infinite;
-  will-change: background-position;
-}
-
-.landing-wobble {
-  animation: landing-wobble 0.65s ease-in-out infinite;
-  will-change: transform;
-}
-
-.landing-jitter {
-  animation: landing-jitter 0.45s steps(2, end) infinite;
-  will-change: transform;
-}
-
-.landing-title-glow {
-  animation: landing-pulse-glow 3.5s ease-in-out infinite;
-  will-change: text-shadow;
-}
-
-.landing-orbit {
-  animation: landing-spin-slow 14s linear infinite;
-  will-change: transform;
-}
-
-.landing-card-rave {
-  animation: landing-border-rave 3.5s ease-in-out infinite;
-  will-change: box-shadow;
-}
-
-.landing-blur-layer {
-  animation: landing-blur-breathe 2.8s ease-in-out infinite;
-  will-change: backdrop-filter, opacity;
-}
-
-.landing-cta-pulse {
-  animation: landing-scale-yuck 0.9s ease-in-out infinite;
-  will-change: transform;
-}
-
-.landing-footer-shake {
-  animation: landing-shake-x 0.35s ease-in-out infinite;
-  will-change: transform;
-}
-
-@keyframes landing-soft-flicker {
-  0%,
-  40% {
     opacity: 1;
-    filter: brightness(1);
-  }
-  50% {
-    opacity: 0.72;
-    filter: brightness(1.25);
-  }
-  60%,
-  100% {
-    opacity: 1;
-    filter: brightness(1);
+    transform: translateY(0);
   }
 }
 
-.landing-blink {
-  animation: landing-soft-flicker 2.4s ease-in-out infinite;
-  will-change: opacity, filter;
+.animate-in {
+  animation: fade-in-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-in {
+    animation: none;
+  }
+  * {
+    scroll-behavior: auto !important;
+  }
 }

@@ -1,36 +1,14 @@
 "use client";
 
-import ChefLogo from "@/app/components/ChefLogo";
-import { CookingGifBackdrop } from "@/app/components/CookingGifPlaster";
-import { useState, useEffect, use } from "react";
-
-interface MealPlanRecipe {
-  id: string;
-  day: string;
-  mealType: string;
-  recipe: {
-    id: string;
-    title: string;
-    imageUrl: string;
-    ingredients: { name: string; amount: string; unit: string }[];
-  };
-}
-
-interface MealPlan {
-  id: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-  recipes: MealPlanRecipe[];
-}
-
-interface RecipeOption {
-  id: string;
-  title: string;
-}
+import { use, useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { Button, Card, PageLoader, Select, Spinner } from "@/app/components/ui";
+import { api } from "@/app/lib/api";
+import type { MealPlan, Recipe } from "@/app/lib/types";
 
 const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 const MEAL_TYPES = ["breakfast", "lunch", "dinner"];
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export default function MealPlanDetailPage({
   params,
@@ -38,150 +16,166 @@ export default function MealPlanDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  console.log("[CHAOS render] MealPlanDetailPage", id);
-  const [mealPlan, setMealPlan] = useState<MealPlan | null>(null);
-  const [recipes, setRecipes] = useState<RecipeOption[]>([]);
-  const [selectedDay, setSelectedDay] = useState("monday");
-  const [selectedMealType, setSelectedMealType] = useState("breakfast");
-  const [selectedRecipeId, setSelectedRecipeId] = useState("");
+  const [plan, setPlan] = useState<MealPlan | null>(null);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [day, setDay] = useState("monday");
+  const [mealType, setMealType] = useState("breakfast");
+  const [recipeId, setRecipeId] = useState("");
+  const [adding, setAdding] = useState(false);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    fetch(`/api/meal-plans/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
-      .then((data) => setMealPlan(data.mealPlan));
-
-    fetch("/api/recipes")
-      .then((r) => r.json())
-      .then((data) => {
-        setRecipes(data.recipes);
-        if (data.recipes.length > 0) setSelectedRecipeId(data.recipes[0].id);
-      });
+  const loadPlan = useCallback(async () => {
+    const data = await api<{ mealPlan: MealPlan }>(`/api/meal-plans/${id}`);
+    setPlan(data.mealPlan);
   }, [id]);
 
-  async function handleAddRecipe() {
-    const token = localStorage.getItem("token");
-
-    const res = await fetch(`/api/meal-plans/${id}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        day: selectedDay,
-        mealType: selectedMealType,
-        recipeId: selectedRecipeId,
-      }),
+  useEffect(() => {
+    loadPlan().catch((e) => setError((e as Error).message));
+    api<{ recipes: Recipe[] }>("/api/recipes").then((data) => {
+      setRecipes(data.recipes);
+      if (data.recipes.length) setRecipeId(data.recipes[0].id);
     });
+  }, [id, loadPlan]);
 
-    if (res.ok) {
-      const token2 = localStorage.getItem("token");
-      const updated = await fetch(`/api/meal-plans/${id}`, {
-        headers: { Authorization: `Bearer ${token2}` },
+  async function handleAdd() {
+    if (!recipeId) return;
+    setAdding(true);
+    setError("");
+    try {
+      await api(`/api/meal-plans/${id}`, {
+        method: "POST",
+        body: { day, mealType, recipeId },
       });
-      const data = await updated.json();
-      setMealPlan(data.mealPlan);
+      await loadPlan();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setAdding(false);
     }
   }
 
-  if (!mealPlan) return null;
+  async function handleRemove(entryId: string) {
+    const prev = plan;
+    setPlan((p) => (p ? { ...p, recipes: p.recipes.filter((r) => r.id !== entryId) } : p));
+    try {
+      await api(`/api/meal-plans/${id}?entryId=${entryId}`, { method: "DELETE" });
+    } catch (e) {
+      setPlan(prev);
+      setError((e as Error).message);
+    }
+  }
+
+  if (!plan) return error ? <ErrorState message={error} /> : <PageLoader />;
 
   return (
-    <div className="relative min-h-screen">
-      <div className="absolute inset-0 z-0 bg-gray-50" aria-hidden />
-      <CookingGifBackdrop position="absolute" stackClass="z-[1]" />
-      <div className="relative z-10 p-6">
-      <h1 className="text-3xl font-bold text-gray-800 mb-2 font-sans flex items-center gap-2 flex-wrap">
-        <ChefLogo size={36} />
-        {mealPlan.name}
-      </h1>
-      <p className="text-sm text-gray-400 mb-6">
-        {new Date(mealPlan.startDate).toLocaleDateString()} -{" "}
-        {new Date(mealPlan.endDate).toLocaleDateString()}
+    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+      <Link href="/meal-plans" className="text-sm text-muted hover:text-foreground">
+        ← Meal plans
+      </Link>
+      <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">{plan.name}</h1>
+      <p className="mt-1.5 text-sm text-muted">
+        {new Date(plan.startDate).toLocaleDateString()} – {new Date(plan.endDate).toLocaleDateString()}
       </p>
 
-      <div className="bg-white border border-gray-200 p-4 rounded mb-6">
-        <h2 className="text-lg font-bold text-gray-700 mb-3">Add Recipe</h2>
-        <div className="flex gap-4 items-end flex-wrap">
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">Day</label>
-            <select
-              value={selectedDay}
-              onChange={(e) => setSelectedDay(e.target.value)}
-              className="border border-gray-300 p-2 text-sm rounded"
-            >
+      <Card className="mt-6 p-5">
+        <h2 className="text-sm font-semibold text-foreground">Add a meal</h2>
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_2fr_auto] sm:items-end">
+          <Field label="Day">
+            <Select value={day} onChange={(e) => setDay(e.target.value)}>
               {DAYS.map((d) => (
                 <option key={d} value={d}>
-                  {d.charAt(0).toUpperCase() + d.slice(1)}
+                  {cap(d)}
                 </option>
               ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">Meal</label>
-            <select
-              value={selectedMealType}
-              onChange={(e) => setSelectedMealType(e.target.value)}
-              className="border border-gray-300 p-2 text-sm rounded"
-            >
+            </Select>
+          </Field>
+          <Field label="Meal">
+            <Select value={mealType} onChange={(e) => setMealType(e.target.value)}>
               {MEAL_TYPES.map((m) => (
                 <option key={m} value={m}>
-                  {m.charAt(0).toUpperCase() + m.slice(1)}
+                  {cap(m)}
                 </option>
               ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">Recipe</label>
-            <select
-              value={selectedRecipeId}
-              onChange={(e) => setSelectedRecipeId(e.target.value)}
-              className="border border-gray-300 p-2 text-sm rounded"
-            >
+            </Select>
+          </Field>
+          <Field label="Recipe">
+            <Select value={recipeId} onChange={(e) => setRecipeId(e.target.value)}>
               {recipes.map((r) => (
                 <option key={r.id} value={r.id}>
                   {r.title}
                 </option>
               ))}
-            </select>
-          </div>
-          <button
-            onClick={handleAddRecipe}
-            className="bg-lime-500 text-black px-4 py-2 text-sm font-bold"
-          >
-            Add
-          </button>
+            </Select>
+          </Field>
+          <Button onClick={handleAdd} disabled={adding || !recipeId}>
+            {adding ? <Spinner /> : "Add"}
+          </Button>
         </div>
-      </div>
+        {error && <p className="mt-3 text-sm text-danger">{error}</p>}
+      </Card>
 
-      <div className="grid grid-cols-7 gap-2">
-        {DAYS.map((day) => (
-          <div key={day} className="bg-white border border-gray-200 p-3 rounded min-h-[200px]">
-            <h3 className="text-sm font-bold text-gray-700 mb-2 capitalize">
-              {day}
-            </h3>
-            {MEAL_TYPES.map((meal) => {
-              const items = mealPlan.recipes.filter(
-                (r) => r.day === day && r.mealType === meal
-              );
-              return (
-                <div key={meal} className="mb-2">
-                  <p className="text-xs text-gray-400 capitalize">{meal}</p>
-                  {items.map((item) => (
-                    <p key={item.id} className="text-xs text-purple-700 truncate">
-                      {item.recipe.title}
-                    </p>
-                  ))}
-                </div>
-              );
-            })}
-          </div>
+      <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-7">
+        {DAYS.map((d) => (
+          <Card key={d} className="flex min-h-50 flex-col p-3">
+            <h3 className="mb-2 text-sm font-semibold text-foreground">{cap(d)}</h3>
+            <div className="space-y-3">
+              {MEAL_TYPES.map((meal) => {
+                const items = plan.recipes.filter((r) => r.day === d && r.mealType === meal);
+                return (
+                  <div key={meal}>
+                    <p className="text-xs uppercase tracking-wide text-subtle">{cap(meal)}</p>
+                    {items.length === 0 ? (
+                      <p className="mt-0.5 text-xs text-(--border-strong)">—</p>
+                    ) : (
+                      items.map((item) => (
+                        <div
+                          key={item.id}
+                          className="group mt-1 flex items-center justify-between gap-1 rounded-md bg-accent-soft px-2 py-1"
+                        >
+                          <Link
+                            href={`/recipes/${item.recipe.id}`}
+                            className="truncate text-xs font-medium text-accent-hover hover:underline"
+                          >
+                            {item.recipe.title}
+                          </Link>
+                          <button
+                            onClick={() => handleRemove(item.id)}
+                            className="text-xs text-subtle opacity-0 transition-opacity hover:text-danger group-hover:opacity-100"
+                            aria-label="Remove meal"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
         ))}
       </div>
-      </div>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <span className="mb-1.5 block text-xs font-medium text-muted">{label}</span>
+      {children}
+    </div>
+  );
+}
+
+function ErrorState({ message }: { message: string }) {
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-20 text-center">
+      <h1 className="text-2xl font-semibold text-foreground">Couldn&apos;t load this plan</h1>
+      <p className="mt-2 text-sm text-muted">{message}</p>
+      <Link href="/meal-plans" className="mt-4 inline-block text-sm text-accent-hover hover:underline">
+        ← Back to meal plans
+      </Link>
     </div>
   );
 }
