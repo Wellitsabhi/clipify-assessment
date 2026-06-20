@@ -50,8 +50,9 @@ export default function RegisterPage() {
 
   return (
     <AuthShell
+      eyebrow="Join the table"
       title="Create your account"
-      subtitle="Start planning meals in minutes."
+      subtitle="Start planning delicious weeks in minutes."
       footer={
         <>
           Already have an account?{" "}
