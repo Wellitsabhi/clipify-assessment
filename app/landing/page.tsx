@@ -4,7 +4,9 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import ChefLogo from "@/app/components/ChefLogo";
 import { ShaderBackground } from "@/app/components/ShaderBackground";
-import { SparkleIcon } from "@/app/components/icons";
+import { Aurora } from "@/app/components/Aurora";
+import { BlurText } from "@/app/components/BlurText";
+import { AIChatIcon, CalendarWeekIcon, CatalogIcon, IdeaIcon } from "@/app/components/AnimatedIcons";
 import { CountUp } from "@/app/components/CountUp";
 import { FadeIn, staggerContainer, staggerItem } from "@/app/components/motion";
 
@@ -16,17 +18,17 @@ const STATS = [
 
 const FEATURES = [
   {
-    icon: "🤖",
+    Icon: AIChatIcon,
     title: "AI Recipe Bot",
     body: "Tell Chef Ferraro what you're craving — high-protein, vegan, 20 minutes — and get a complete recipe added to your catalog, photo and all.",
   },
   {
-    icon: "📚",
+    Icon: CatalogIcon,
     title: "Your recipe catalog",
     body: "A clean, searchable library of everything you cook. Filter by cuisine and dietary tags, and open any recipe for ingredients and timing.",
   },
   {
-    icon: "🗓️",
+    Icon: CalendarWeekIcon,
     title: "Weekly meal plans",
     body: "Slot your recipes into a Monday-to-Sunday grid across breakfast, lunch, and dinner — so grocery day finally makes sense.",
   },
@@ -41,40 +43,52 @@ const STEPS = [
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Nav */}
-      <header className="relative z-20 mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <div className="flex items-center gap-2.5">
-          <ChefLogo size={34} href={null} />
-          <span className="font-display font-semibold tracking-tight">MealPlan Pro</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <Link href="/login" className="text-sm font-medium text-muted hover:text-foreground">
-            Sign in
-          </Link>
-          <Link
-            href="/register"
-            className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white shadow-(--shadow-sm) transition-colors duration-200 hover:bg-accent-hover"
-          >
-            Get started
-          </Link>
-        </div>
+      {/* Sticky glass nav */}
+      <header className="sticky top-0 z-30 px-3 pt-3 sm:px-5 sm:pt-4">
+        <nav
+          className="mx-auto flex max-w-5xl items-center justify-between gap-4 rounded-2xl border border-white/50 bg-surface/45 px-4 py-2.5 backdrop-blur-2xl backdrop-saturate-150"
+          style={{
+            backgroundImage:
+              "linear-gradient(180deg, rgba(255,255,255,0.45), rgba(255,255,255,0.05) 45%)",
+            boxShadow: "inset 0 1px 0 0 rgba(255,255,255,0.7), var(--shadow-md)",
+          }}
+        >
+          <div className="flex items-center gap-2.5">
+            <ChefLogo size={32} href={null} />
+            <span className="font-display font-semibold tracking-tight">MealPlan Pro</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/login" className="text-sm font-medium text-muted transition-colors hover:text-foreground">
+              Sign in
+            </Link>
+            <Link
+              href="/register"
+              className="press rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white shadow-(--shadow-sm) transition-colors duration-150 hover:bg-accent-hover"
+            >
+              Get started
+            </Link>
+          </div>
+        </nav>
       </header>
 
-      {/* Hero with shader backdrop */}
+      {/* Hero with aurora + shader backdrop */}
       <section className="relative overflow-hidden">
-        <ShaderBackground className="opacity-90" />
+        <Aurora className="opacity-80" />
+        <ShaderBackground className="opacity-40" />
+        <div className="bg-dots bg-dots-fade pointer-events-none absolute inset-0 opacity-60" aria-hidden />
         <div className="relative z-10 mx-auto max-w-3xl px-6 pb-20 pt-14 text-center sm:pt-20">
           <FadeIn>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface/80 px-3 py-1 text-xs font-medium text-accent-hover backdrop-blur-sm">
-              <SparkleIcon size={13} /> Powered by AI · Built for home cooks
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/50 bg-surface/70 px-3 py-1 text-xs font-medium text-accent-hover shadow-(--shadow-sm) backdrop-blur-md">
+              <IdeaIcon size={13} /> Powered by AI · Built for home cooks
             </span>
           </FadeIn>
-          <FadeIn delay={0.08}>
-            <h1 className="mt-6 font-display text-5xl font-semibold leading-[1.05] tracking-tight sm:text-7xl">
-              Plan your week of
-              <span className="text-accent"> meals</span> in minutes.
-            </h1>
-          </FadeIn>
+          <h1 className="mt-6 font-display text-5xl font-semibold leading-[1.05] tracking-tight sm:text-7xl">
+            <BlurText text="Plan your week of" as="span" className="block" />
+            <span className="block">
+              <BlurText text="meals" as="span" className="text-accent" delay={0.3} />{" "}
+              <BlurText text="in minutes." as="span" delay={0.4} />
+            </span>
+          </h1>
           <FadeIn delay={0.16}>
             <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-muted">
               MealPlan Pro turns a recipe catalog and an AI sous-chef into a calm,
@@ -129,9 +143,7 @@ export default function LandingPage() {
               variants={staggerItem}
               className="rounded-(--radius-card) border border-border bg-surface p-6 shadow-(--shadow-sm)"
             >
-              <div className="text-3xl">
-                {f.icon}
-              </div>
+              <f.Icon />
               <h3 className="mt-4 font-display text-lg font-semibold">{f.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted">{f.body}</p>
             </motion.div>
