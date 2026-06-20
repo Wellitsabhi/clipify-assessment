@@ -189,7 +189,7 @@ function Bubble({ msg }: { msg: Message }) {
               src={msg.recipe.imageUrl}
               title={msg.recipe.title}
               className="h-12 w-12 shrink-0 rounded-lg object-cover"
-              emojiClassName="text-xl"
+              nameClassName="text-[8px] leading-none line-clamp-2"
             />
             <div className="min-w-0">
               <p className="text-xs font-medium text-accent-hover">Recipe added to your catalog</p>

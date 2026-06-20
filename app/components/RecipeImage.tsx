@@ -5,16 +5,16 @@ import { useState } from "react";
 // The seed fallback used for recipes without a real/generated photo.
 const FALLBACK = "/images/recipes/classic-pancakes.jpg";
 
-// Warm, food-friendly gradient pairs; chosen deterministically per recipe so
-// the same dish always gets the same placeholder.
+// Refined, food-magazine gradient pairs (muted, editorial — not candy). Chosen
+// deterministically per recipe so the same dish always gets the same tile.
 const GRADIENTS = [
-  ["#dcfce7", "#86efac"],
-  ["#fef3c7", "#fcd34d"],
-  ["#ffedd5", "#fdba74"],
-  ["#fee2e2", "#fca5a5"],
-  ["#ecfccb", "#bef264"],
-  ["#e0f2fe", "#7dd3fc"],
-  ["#fae8ff", "#e9d5ff"],
+  ["#e7f0e3", "#bcd4b0"], // sage
+  ["#f3ead8", "#dcc79b"], // wheat
+  ["#f0e2d4", "#d8b594"], // terracotta
+  ["#e6ece6", "#b9cabc"], // herb gray
+  ["#eef0d9", "#cdd49a"], // olive
+  ["#e4ece9", "#aec7be"], // eucalyptus
+  ["#efe6ea", "#d2b8c4"], // dusty rose
 ];
 
 function pick(seed: string) {
@@ -23,45 +23,22 @@ function pick(seed: string) {
   return GRADIENTS[h % GRADIENTS.length];
 }
 
-// Map common dish keywords to a representative emoji.
-const EMOJI: [RegExp, string][] = [
-  [/pancake|toast|waffle|breakfast/i, "🥞"],
-  [/salad|greens|caesar|greek/i, "🥗"],
-  [/salmon|fish|tuna|cod|tacos?/i, "🐟"],
-  [/beef|steak|stew|burger/i, "🥩"],
-  [/chicken|tikka|curry/i, "🍗"],
-  [/pasta|carbonara|spaghetti|noodle|ramen/i, "🍝"],
-  [/soup|broth|ramen|tom yum/i, "🍜"],
-  [/cake|chocolate|dessert|parfait|sweet/i, "🍰"],
-  [/rice|risotto|bowl/i, "🍚"],
-  [/smoothie|juice|drink/i, "🥤"],
-  [/veg|stir.?fry|tofu|vegan/i, "🥦"],
-  [/sandwich|wrap|caprese/i, "🥪"],
-  [/pork|bbq|ribs/i, "🍖"],
-  [/egg|avocado/i, "🥑"],
-  [/shrimp|prawn|seafood/i, "🦐"],
-];
-
-function emojiFor(title: string) {
-  for (const [re, e] of EMOJI) if (re.test(title)) return e;
-  return "🍽️";
-}
-
 /**
- * Renders a recipe image, but falls back to a deterministic appetizing gradient
- * + dish emoji when there's no real photo (the seed pancake placeholder) or the
- * image fails to load — so AI-created recipes never show a mismatched picture.
+ * Renders a recipe image. When there's no real photo (the seed pancake
+ * placeholder) or the image fails to load, it falls back to a deterministic,
+ * editorial gradient tile with the dish NAME set in display type — no emoji,
+ * no mismatched stock photo. Title is shown only here (not also below).
  */
 export function RecipeImage({
   src,
   title,
   className = "",
-  emojiClassName = "text-5xl",
+  nameClassName = "text-2xl",
 }: {
   src: string;
   title: string;
   className?: string;
-  emojiClassName?: string;
+  nameClassName?: string;
 }) {
   const [failed, setFailed] = useState(false);
   const isPlaceholder = !src || src === FALLBACK || failed;
@@ -70,13 +47,15 @@ export function RecipeImage({
     const [from, to] = pick(title);
     return (
       <div
-        className={`flex items-center justify-center ${className}`}
+        className={`relative flex items-center justify-center overflow-hidden p-5 ${className}`}
         style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
         role="img"
         aria-label={title}
       >
-        <span className={`${emojiClassName} drop-shadow-sm select-none`} aria-hidden>
-          {emojiFor(title)}
+        <span
+          className={`font-display text-center leading-[1.05] font-semibold tracking-tight text-foreground/85 ${nameClassName}`}
+        >
+          {title}
         </span>
       </div>
     );
