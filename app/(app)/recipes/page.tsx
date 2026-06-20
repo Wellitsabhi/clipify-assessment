@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import {
   Badge,
   Button,
@@ -14,6 +14,7 @@ import {
   Spinner,
 } from "@/app/components/ui";
 import {
+  ArrowLeftIcon,
   ClockIcon,
   FlameIcon,
   PlusIcon,
@@ -36,6 +37,9 @@ export default function RecipesPage() {
   const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(false);
   const [error, setError] = useState("");
+
+  const [expanded, setExpanded] = useState<Recipe | null>(null);
+  const closeExpanded = useCallback(() => setExpanded(null), []);
 
   const PER_PAGE = 9;
 
@@ -167,6 +171,7 @@ export default function RecipesPage() {
                 recipe={recipe}
                 canDelete={recipe.userId === user?.id}
                 onDelete={handleDelete}
+                onExpand={() => setExpanded(recipe)}
               />
             ))}
           </motion.div>
@@ -183,6 +188,8 @@ export default function RecipesPage() {
           }}
         />
       )}
+
+      <ExpandedRecipe recipe={expanded} onClose={closeExpanded} />
     </div>
   );
 }
@@ -238,35 +245,46 @@ function RecipeCard({
   recipe,
   canDelete,
   onDelete,
+  onExpand,
 }: {
   recipe: Recipe;
   canDelete: boolean;
   onDelete: (id: string) => void;
+  onExpand: () => void;
 }) {
   const tags = (recipe.dietaryTags ?? "").split(",").map((t) => t.trim()).filter(Boolean);
   return (
     <motion.div variants={staggerItem} className="h-full">
       <TiltCard className="group h-full">
         <Card className="flex h-full flex-col overflow-hidden transition-[border-color,box-shadow] duration-300 group-hover:border-(--border-strong) group-hover:shadow-(--shadow-lg)">
-        <Link href={`/recipes/${recipe.id}`} className="relative block overflow-hidden">
-          <RecipeImage
-            src={recipe.imageUrl}
-            title={recipe.title}
-            className="h-44 w-full object-cover transition-transform duration-500 ease-(--ease-out-soft) group-hover:scale-[1.06]"
-          />
+        <button
+          onClick={onExpand}
+          className="relative block w-full overflow-hidden text-left"
+          aria-label={`Open ${recipe.title}`}
+        >
+          <motion.div layoutId={`recipe-img-${recipe.id}`}>
+            <RecipeImage
+              src={recipe.imageUrl}
+              title={recipe.title}
+              className="h-44 w-full object-cover transition-transform duration-500 ease-(--ease-out-soft) group-hover:scale-[1.06]"
+            />
+          </motion.div>
           <div className="absolute inset-0 bg-linear-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
           {recipe.cuisine && (
             <span className="absolute left-3 top-3 rounded-full bg-surface/90 px-2.5 py-0.5 text-xs font-medium text-foreground backdrop-blur-sm">
               {recipe.cuisine}
             </span>
           )}
-        </Link>
+        </button>
         <div className="flex flex-1 flex-col p-5">
-          <Link href={`/recipes/${recipe.id}`}>
-            <h3 className="font-medium leading-snug text-foreground transition-colors group-hover:text-accent-hover">
+          <button onClick={onExpand} className="text-left">
+            <motion.h3
+              layoutId={`recipe-title-${recipe.id}`}
+              className="font-medium leading-snug text-foreground transition-colors group-hover:text-accent-hover"
+            >
               {recipe.title}
-            </h3>
-          </Link>
+            </motion.h3>
+          </button>
           <p className="mt-1 line-clamp-2 text-sm text-muted">{recipe.description}</p>
 
           {tags.length > 0 && (
@@ -294,12 +312,12 @@ function RecipeCard({
           </div>
 
           <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
-            <Link
-              href={`/recipes/${recipe.id}`}
+            <button
+              onClick={onExpand}
               className="text-sm font-medium text-accent-hover transition-transform duration-200 hover:translate-x-0.5"
             >
               View recipe →
-            </Link>
+            </button>
             {canDelete && (
               <button
                 aria-label="Delete recipe"
@@ -473,5 +491,148 @@ export function Modal({
         </Card>
       </motion.div>
     </motion.div>
+  );
+}
+
+/**
+ * Aceternity-style expand: the clicked card's image + title share a layoutId
+ * with this overlay and morph into an expanded panel. Full recipe data is
+ * fetched on open; the URL is updated to /recipes/[id] for refresh/share and
+ * restored on close. Click-outside / Escape close it.
+ */
+function ExpandedRecipe({
+  recipe,
+  onClose,
+}: {
+  recipe: Recipe | null;
+  onClose: () => void;
+}) {
+  const [full, setFull] = useState<Recipe | null>(null);
+
+  useEffect(() => {
+    if (!recipe) {
+      setFull(null);
+      return;
+    }
+    setFull(recipe);
+    let active = true;
+    // Fetch full detail (ingredients) to fill the expanded view.
+    api<{ recipe: Recipe }>(`/api/recipes/${recipe.id}`)
+      .then((d) => {
+        if (active) setFull(d.recipe);
+      })
+      .catch(() => {});
+
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", onKey);
+    // Lock background scroll while the overlay is open.
+    document.body.style.overflow = "hidden";
+    return () => {
+      active = false;
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [recipe, onClose]);
+
+  const close = onClose;
+  const tags = (full?.dietaryTags ?? "").split(",").map((t) => t.trim()).filter(Boolean);
+
+  return (
+    <AnimatePresence>
+      {recipe && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:p-8">
+          <motion.div
+            className="fixed inset-0 bg-foreground/40 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={close}
+          />
+          <motion.div className="relative z-10 w-full max-w-2xl">
+            <Card className="overflow-hidden shadow-(--shadow-lg)">
+              <div className="relative">
+                <motion.div layoutId={`recipe-img-${recipe.id}`}>
+                  <RecipeImage
+                    src={(full ?? recipe).imageUrl}
+                    title={recipe.title}
+                    className="h-64 w-full object-cover sm:h-80"
+                    nameClassName="text-4xl"
+                  />
+                </motion.div>
+                <button
+                  onClick={close}
+                  aria-label="Close"
+                  className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-surface/90 text-foreground shadow-(--shadow-sm) backdrop-blur transition-colors hover:bg-surface"
+                >
+                  <ArrowLeftIcon size={16} />
+                </button>
+              </div>
+
+              <div className="p-6 sm:p-8">
+                <div className="flex flex-wrap items-center gap-2">
+                  {full?.cuisine && <Badge>{full.cuisine}</Badge>}
+                  {tags.map((t) => (
+                    <Badge key={t} tone="accent">
+                      {t}
+                    </Badge>
+                  ))}
+                </div>
+                <motion.h2
+                  layoutId={`recipe-title-${recipe.id}`}
+                  className="mt-3 font-display text-3xl font-semibold tracking-tight text-foreground"
+                >
+                  {recipe.title}
+                </motion.h2>
+
+                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+                  <p className="mt-3 leading-relaxed text-muted">{(full ?? recipe).description}</p>
+
+                  <div className="mt-6 flex flex-wrap gap-5 text-sm text-muted">
+                    <span className="inline-flex items-center gap-1.5">
+                      <ClockIcon size={15} /> {(full ?? recipe).prepTime + (full ?? recipe).cookTime} min
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <UsersIcon size={15} /> Serves {(full ?? recipe).servings}
+                    </span>
+                    {(full ?? recipe).calories != null && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <FlameIcon size={15} /> {(full ?? recipe).calories} cal
+                      </span>
+                    )}
+                  </div>
+
+                  {full?.ingredients && full.ingredients.length > 0 ? (
+                    <>
+                      <h3 className="mt-7 font-display text-lg font-semibold text-foreground">Ingredients</h3>
+                      <ul className="mt-3 divide-y divide-border rounded-xl border border-border">
+                        {full.ingredients.map((ing) => (
+                          <li key={ing.id ?? ing.name} className="flex items-baseline justify-between px-4 py-2.5 text-sm">
+                            <span className="text-foreground">{ing.name}</span>
+                            <span className="text-muted">{ing.amount} {ing.unit}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  ) : (
+                    <div className="mt-6 flex justify-center py-4">
+                      <Spinner className="text-subtle" />
+                    </div>
+                  )}
+
+                  <Link
+                    href={`/recipes/${recipe.id}`}
+                    className="mt-6 inline-block text-sm font-medium text-accent-hover hover:underline"
+                  >
+                    Open full page →
+                  </Link>
+                </motion.div>
+              </div>
+            </Card>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 }
