@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { Button, Card, PageLoader, Select, Spinner } from "@/app/components/ui";
 import { ArrowLeftIcon, PlusIcon } from "@/app/components/icons";
-import { MealIcon } from "@/app/components/MealIcon";
+import { MealTypeAnim } from "@/app/components/AnimatedIcons";
 import { staggerContainer, staggerItem } from "@/app/components/motion";
 import { api } from "@/app/lib/api";
 import type { MealPlan, Recipe } from "@/app/lib/types";
@@ -140,7 +140,7 @@ export default function MealPlanDetailPage({
                   return (
                     <div key={meal}>
                       <p className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-subtle">
-                        <MealIcon type={meal} /> {cap(meal)}
+                        <MealTypeAnim type={meal} size={15} /> {cap(meal)}
                       </p>
                       {items.length === 0 ? (
                         <p className="mt-1 text-xs text-(--border-strong)">—</p>

@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Button, Spinner } from "@/app/components/ui";
-import { SendIcon, SparkleIcon } from "@/app/components/icons";
+import { SendIcon } from "@/app/components/icons";
+import { ChefMark } from "@/app/components/AnimatedIcons";
 import { RecipeImage } from "@/app/components/RecipeImage";
 import { api } from "@/app/lib/api";
 import type { Recipe } from "@/app/lib/types";
@@ -70,8 +71,8 @@ export default function ChatPage() {
   return (
     <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-3xl flex-col px-4 sm:px-6">
       <div className="flex items-center gap-3 border-b border-border py-5">
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-accent to-citrus text-white shadow-(--shadow-sm)">
-          <SparkleIcon size={18} />
+        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-surface-2 ring-1 ring-border">
+          <ChefMark size={30} />
         </span>
         <div>
           <h1 className="font-display text-xl font-semibold tracking-tight text-foreground">
@@ -90,7 +91,9 @@ export default function ChatPage() {
           </div>
         ) : messages.length === 0 ? (
           <div className="pt-10 text-center">
-            <p className="text-4xl">👨‍🍳</p>
+            <div className="flex justify-center">
+              <ChefMark size={64} />
+            </div>
             <p className="mt-4 text-foreground">What should we cook today?</p>
             <div className="mt-6 flex flex-wrap justify-center gap-2">
               {SUGGESTIONS.map((s) => (
