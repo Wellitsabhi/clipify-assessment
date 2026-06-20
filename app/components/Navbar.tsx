@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Badge, IconButton, Spinner } from "@/app/components/ui";
+import { Badge, Spinner } from "@/app/components/ui";
 import { LogoutIcon } from "@/app/components/icons";
 import { useUser } from "@/app/lib/useUser";
 import { EASE_OUT_SOFT } from "@/app/components/motion";
@@ -38,19 +38,19 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-30 border-b border-border/80 bg-surface/70 backdrop-blur-xl">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-6">
           <Link href="/recipes" className="group flex items-center gap-2.5">
             <span className="transition-transform duration-300 ease-(--ease-spring) group-hover:rotate-[-8deg] group-hover:scale-105">
               <ChefLogo size={32} href={null} />
             </span>
-            <span className="font-display text-[17px] font-semibold tracking-tight text-foreground">
+            <span className="font-display text-[18px] font-semibold tracking-tight text-foreground">
               MealPlan&nbsp;Pro
             </span>
           </Link>
 
-          {/* Desktop nav with sliding active pill + hover follow */}
+          {/* Desktop nav: gap between items so active/hover pills never touch */}
           <div
-            className="relative hidden items-center md:flex"
+            className="relative hidden items-center gap-1 md:flex"
             onMouseLeave={() => setHovered(null)}
           >
             {LINKS.map((link) => {
@@ -60,17 +60,15 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   onMouseEnter={() => setHovered(link.href)}
-                  className="relative px-3.5 py-2 text-sm font-medium"
+                  className="relative rounded-lg px-3.5 py-2 text-sm font-medium"
                 >
-                  {/* hover highlight */}
                   {hovered === link.href && !active && (
                     <motion.span
                       layoutId="nav-hover"
-                      className="absolute inset-0 rounded-lg bg-black/5"
-                      transition={{ duration: 0.25, ease: EASE_OUT_SOFT }}
+                      className="absolute inset-0 rounded-lg bg-black/4"
+                      transition={{ duration: 0.22, ease: EASE_OUT_SOFT }}
                     />
                   )}
-                  {/* active pill */}
                   {active && (
                     <motion.span
                       layoutId="nav-active"
@@ -80,9 +78,7 @@ export default function Navbar() {
                   )}
                   <span
                     className={`relative z-10 transition-colors ${
-                      active
-                        ? "text-accent-hover"
-                        : "text-muted hover:text-foreground"
+                      active ? "text-accent-hover" : "text-muted hover:text-foreground"
                     }`}
                   >
                     {link.label}
@@ -93,22 +89,22 @@ export default function Navbar() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {user && <UserChip name={user.name || user.email} plan={user.plan} />}
-          {loggingOut ? (
-            <span className="inline-flex h-9 w-9 items-center justify-center text-subtle">
-              <Spinner />
-            </span>
-          ) : (
-            <IconButton label="Log out" onClick={handleLogout}>
-              <LogoutIcon />
-            </IconButton>
-          )}
+          {/* Icon-only logout — no tooltip (it cropped against the sticky bar) */}
+          <button
+            onClick={handleLogout}
+            disabled={loggingOut}
+            aria-label="Log out"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-subtle transition-colors hover:bg-black/5 hover:text-foreground disabled:opacity-50"
+          >
+            {loggingOut ? <Spinner /> : <LogoutIcon size={18} />}
+          </button>
         </div>
       </nav>
 
       {/* Mobile nav */}
-      <div className="flex items-center gap-1 overflow-x-auto border-t border-border px-3 py-2 md:hidden">
+      <div className="flex items-center gap-1.5 overflow-x-auto border-t border-border px-3 py-2 md:hidden">
         {LINKS.map((link) => (
           <Link
             key={link.href}
@@ -135,18 +131,20 @@ function UserChip({ name, plan }: { name: string; plan: string }) {
     .toUpperCase();
 
   return (
-    <div className="hidden items-center gap-2.5 sm:flex">
-      {plan === "pro" && <Badge tone="accent">Pro</Badge>}
-      <span className="max-w-35 truncate text-sm text-muted">{name}</span>
-      {/* Playful avatar: gradient chip with a gentle idle bob */}
-      <motion.span
-        className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-accent to-citrus text-[11px] font-semibold text-white shadow-(--shadow-sm)"
-        animate={{ y: [0, -1.5, 0] }}
-        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-        whileHover={{ scale: 1.08, rotate: -4 }}
+    <div className="flex items-center gap-2.5">
+      {plan === "pro" && (
+        <div className="hidden sm:block">
+          <Badge tone="accent">Pro</Badge>
+        </div>
+      )}
+      {/* Name only on larger screens; avatar is the compact identity on mobile */}
+      <span className="hidden max-w-32 truncate text-sm text-muted lg:inline">{name}</span>
+      <span
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-accent to-citrus text-[11px] font-semibold text-white shadow-(--shadow-sm) ring-2 ring-surface"
+        title={name}
       >
         {initials || "🍳"}
-      </motion.span>
+      </span>
     </div>
   );
 }
