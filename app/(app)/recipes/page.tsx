@@ -24,6 +24,7 @@ import {
   UsersIcon,
 } from "@/app/components/icons";
 import { staggerContainer, staggerItem } from "@/app/components/motion";
+import { RecipeImage } from "@/app/components/RecipeImage";
 import { api } from "@/app/lib/api";
 import { useUser } from "@/app/lib/useUser";
 import type { Recipe } from "@/app/lib/types";
@@ -184,11 +185,10 @@ function RecipeCard({
     <motion.div variants={staggerItem}>
       <Card className="group flex h-full flex-col overflow-hidden transition-all duration-300 ease-(--ease-out-soft) hover:-translate-y-1 hover:border-(--border-strong) hover:shadow-(--shadow-lg)">
         <Link href={`/recipes/${recipe.id}`} className="relative block overflow-hidden">
-          <img
+          <RecipeImage
             src={recipe.imageUrl}
-            alt={recipe.title}
+            title={recipe.title}
             className="h-44 w-full object-cover transition-transform duration-500 ease-(--ease-out-soft) group-hover:scale-[1.06]"
-            loading="lazy"
           />
           <div className="absolute inset-0 bg-linear-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
           {recipe.cuisine && (

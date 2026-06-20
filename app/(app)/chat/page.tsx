@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { Button, Spinner } from "@/app/components/ui";
 import { SendIcon, SparkleIcon } from "@/app/components/icons";
+import { RecipeImage } from "@/app/components/RecipeImage";
 import { api } from "@/app/lib/api";
 import type { Recipe } from "@/app/lib/types";
 
@@ -184,10 +185,11 @@ function Bubble({ msg }: { msg: Message }) {
             href={`/recipes/${msg.recipe.id}`}
             className="flex items-center gap-3 rounded-xl border border-border bg-accent-soft p-3 transition-colors hover:border-accent"
           >
-            <img
+            <RecipeImage
               src={msg.recipe.imageUrl}
-              alt={msg.recipe.title}
-              className="h-12 w-12 rounded-lg object-cover"
+              title={msg.recipe.title}
+              className="h-12 w-12 shrink-0 rounded-lg object-cover"
+              emojiClassName="text-xl"
             />
             <div className="min-w-0">
               <p className="text-xs font-medium text-accent-hover">Recipe added to your catalog</p>

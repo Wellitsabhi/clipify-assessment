@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Badge, Card, PageLoader } from "@/app/components/ui";
 import { ArrowLeftIcon, ClockIcon, FlameIcon, UsersIcon } from "@/app/components/icons";
 import { FadeIn } from "@/app/components/motion";
+import { RecipeImage } from "@/app/components/RecipeImage";
 import { api } from "@/app/lib/api";
 import type { Recipe } from "@/app/lib/types";
 
@@ -50,9 +51,9 @@ export default function RecipeDetailPage({
 
       <FadeIn>
         <div className="mt-4 overflow-hidden rounded-(--radius-card) border border-border shadow-(--shadow-sm)">
-          <img
+          <RecipeImage
             src={recipe.imageUrl}
-            alt={recipe.title}
+            title={recipe.title}
             className="h-72 w-full object-cover sm:h-96"
           />
         </div>
