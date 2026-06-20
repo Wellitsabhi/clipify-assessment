@@ -12,11 +12,13 @@
   },
   "dependencies": {
     "@google/genai": "^1.48.0",
+    "@paper-design/shaders-react": "^0.0.76",
     "@prisma/client": "^6.19.3",
     "@stripe/stripe-js": "^9.0.1",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.0",
     "jsonwebtoken": "^9.0.3",
+    "motion": "^12.40.0",
     "next": "16.2.2",
     "openai": "^6.33.0",
     "prisma": "^6.19.3",

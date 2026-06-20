@@ -22,14 +22,18 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const BTN_BASE =
-  "inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-colors duration-150 disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap";
+  "group/btn inline-flex items-center justify-center gap-2 font-medium rounded-lg whitespace-nowrap " +
+  "transition-[transform,background-color,box-shadow,color] duration-200 [transition-timing-function:var(--ease-out-soft)] " +
+  "active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100";
 
 const BTN_VARIANT: Record<NonNullable<ButtonProps["variant"]>, string> = {
-  primary: "bg-accent text-white hover:bg-accent-hover shadow-(--shadow-sm)",
+  primary:
+    "bg-accent text-white shadow-(--shadow-sm) hover:bg-accent-hover hover:shadow-(--shadow-md) hover:-translate-y-0.5",
   secondary:
-    "bg-surface text-foreground border border-(--border-strong) hover:bg-background",
-  ghost: "text-muted hover:text-foreground hover:bg-black/4",
-  danger: "bg-(--danger-soft) text-danger border border-red-200 hover:bg-red-100",
+    "bg-surface text-foreground border border-(--border-strong) hover:bg-surface-2 hover:-translate-y-0.5 hover:shadow-(--shadow-sm)",
+  ghost: "text-muted hover:text-foreground hover:bg-black/[0.05]",
+  danger:
+    "bg-(--danger-soft) text-danger border border-(--danger)/15 hover:bg-(--danger)/10 hover:-translate-y-0.5",
 };
 
 const BTN_SIZE: Record<NonNullable<ButtonProps["size"]>, string> = {
@@ -48,6 +52,47 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       className={cx(BTN_BASE, BTN_VARIANT[variant], BTN_SIZE[size], className)}
       {...props}
     />
+  );
+});
+
+/* -------------------------------------------------------------------------- */
+/* IconButton — icon-only action with an accessible tooltip                   */
+/* -------------------------------------------------------------------------- */
+
+type IconButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  label: string; // required: accessible name + tooltip text
+  tone?: "default" | "danger";
+};
+
+export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(function IconButton(
+  { label, tone = "default", className, children, ...props },
+  ref
+) {
+  return (
+    <span className="group/ib relative inline-flex">
+      <button
+        ref={ref}
+        aria-label={label}
+        title={label}
+        className={cx(
+          "inline-flex h-9 w-9 items-center justify-center rounded-lg transition-[transform,background-color,color] duration-200 [transition-timing-function:var(--ease-out-soft)] active:scale-90",
+          tone === "danger"
+            ? "text-subtle hover:bg-(--danger-soft) hover:text-danger"
+            : "text-subtle hover:bg-black/[0.05] hover:text-foreground",
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </button>
+      {/* CSS tooltip — appears on hover/focus, no JS. */}
+      <span
+        role="tooltip"
+        className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 translate-y-1 scale-95 whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs font-medium text-white opacity-0 shadow-(--shadow-md) transition-all duration-150 group-hover/ib:translate-y-0 group-hover/ib:scale-100 group-hover/ib:opacity-100"
+      >
+        {label}
+      </span>
+    </span>
   );
 });
 

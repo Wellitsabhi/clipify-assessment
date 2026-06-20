@@ -2,36 +2,50 @@
 
 /*
   MealPlan Pro — design system
-  A calm, warm, food-forward palette. One confident accent (emerald),
-  generous neutrals, a real type scale, and restrained motion.
+  Fresh-garden palette: bright herb greens + a citrus accent on a soft off-white
+  canvas. Display headings in Fraunces (warm editorial serif), body in Geist.
 */
 
 :root {
-  --background: #faf9f6; /* warm paper */
+  --background: #fbfdf9; /* faint herb-tinted paper */
   --surface: #ffffff;
-  --foreground: #1c1917; /* stone-900 */
-  --muted: #78716c; /* stone-500 */
-  --subtle: #a8a29e; /* stone-400 */
-  --border: #ece9e3;
-  --border-strong: #ddd9d1;
+  --surface-2: #f4f8f0; /* tinted panel */
+  --foreground: #18241b; /* deep garden ink */
+  --muted: #5d6b5c; /* sage gray */
+  --subtle: #9aa898; /* light sage */
+  --border: #e6ede1;
+  --border-strong: #d3ddcb;
 
-  --accent: #047857; /* emerald-700 */
-  --accent-hover: #065f46; /* emerald-800 */
-  --accent-soft: #ecfdf5; /* emerald-50 */
-  --accent-ring: #6ee7b7; /* emerald-300 */
+  --accent: #15803d; /* garden green (green-700) */
+  --accent-hover: #166534; /* green-800 */
+  --accent-soft: #eafaf0; /* mint wash */
+  --accent-ring: #86efac; /* green-300 */
 
-  --danger: #b91c1c;
-  --danger-soft: #fef2f2;
+  --citrus: #ea8c1b; /* warm citrus highlight */
+  --citrus-soft: #fdf3e3;
 
-  --radius: 0.75rem;
-  --shadow-sm: 0 1px 2px rgba(28, 25, 23, 0.06);
-  --shadow-md: 0 4px 16px -4px rgba(28, 25, 23, 0.1), 0 2px 6px -2px rgba(28, 25, 23, 0.06);
-  --shadow-lg: 0 12px 40px -12px rgba(28, 25, 23, 0.18);
+  --danger: #c2410c; /* warm terracotta-red, not clinical */
+  --danger-soft: #fdf1ec;
+
+  --radius: 0.875rem;
+
+  /* Soft, layered shadows (slightly neumorphic on light surfaces). */
+  --shadow-sm: 0 1px 2px rgba(24, 36, 27, 0.05), 0 1px 1px rgba(24, 36, 27, 0.04);
+  --shadow-md:
+    0 6px 20px -6px rgba(24, 36, 27, 0.12), 0 2px 6px -2px rgba(24, 36, 27, 0.07);
+  --shadow-lg:
+    0 18px 50px -18px rgba(24, 36, 27, 0.24), 0 6px 16px -8px rgba(24, 36, 27, 0.1);
+  --shadow-press: inset 0 1px 2px rgba(24, 36, 27, 0.12);
+
+  /* Motion language — shared easings so everything feels of-a-piece. */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-subtle: var(--subtle);
@@ -39,10 +53,12 @@
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-soft: var(--accent-soft);
+  --color-citrus: var(--citrus);
   --color-danger: var(--danger);
 
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: var(--font-display), Georgia, "Times New Roman", serif;
   --radius-card: var(--radius);
 }
 
@@ -67,17 +83,48 @@ body {
   color: var(--accent-hover);
 }
 
-/* Accessible focus ring for keyboard users across interactive elements. */
 :where(a, button, input, select, textarea):focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 6px;
 }
 
+/* Display headings helper. */
+.font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+}
+
+/* ---------- Textured / gradient backgrounds (subtle, Emil-style) ---------- */
+
+/* Faint grain so flat fills don't feel sterile. */
+.bg-grain {
+  position: relative;
+}
+.bg-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+}
+
+/* Soft herb-garden radial wash for hero/auth backdrops. */
+.bg-garden {
+  background:
+    radial-gradient(60% 50% at 15% 0%, rgba(134, 239, 172, 0.28), transparent 70%),
+    radial-gradient(50% 45% at 100% 10%, rgba(234, 140, 27, 0.12), transparent 65%),
+    radial-gradient(70% 60% at 50% 110%, rgba(21, 128, 61, 0.1), transparent 70%),
+    var(--background);
+}
+
+/* ---------- Motion ---------- */
+
 @keyframes fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -86,14 +133,32 @@ body {
 }
 
 .animate-in {
-  animation: fade-in-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: fade-in-up 0.45s var(--ease-out-soft) both;
+}
+
+/* Steam wisp for "cooking" microinteractions. */
+@keyframes steam {
+  0% {
+    opacity: 0;
+    transform: translateY(2px) scaleX(0.9);
+  }
+  40% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-8px) scaleX(1.1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-in {
-    animation: none;
+  .animate-in,
+  .bg-garden,
+  * {
+    animation: none !important;
   }
   * {
     scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }
