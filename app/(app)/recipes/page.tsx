@@ -23,7 +23,13 @@ import {
   UsersIcon,
 } from "@/app/components/icons";
 import { IdeaIcon } from "@/app/components/AnimatedIcons";
-import { staggerContainer, staggerItem } from "@/app/components/motion";
+import { EASE_OUT, staggerContainer, staggerItem } from "@/app/components/motion";
+
+// Body reveal for the expanded overlay (stagger children in).
+const revealItem = {
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: EASE_OUT } },
+};
 import { RecipeImage } from "@/app/components/RecipeImage";
 import { TiltCard } from "@/app/components/TiltCard";
 import { useConfirm } from "@/app/components/ConfirmProvider";
@@ -275,13 +281,11 @@ function RecipeCard({
           className="relative block w-full overflow-hidden text-left"
           aria-label={`Open ${recipe.title}`}
         >
-          <motion.div layoutId={`recipe-img-${recipe.id}`}>
-            <RecipeImage
-              src={recipe.imageUrl}
-              title={recipe.title}
-              className="h-44 w-full object-cover transition-transform duration-500 ease-(--ease-out-soft) group-hover:scale-[1.06]"
-            />
-          </motion.div>
+          <RecipeImage
+            src={recipe.imageUrl}
+            title={recipe.title}
+            className="h-44 w-full object-cover transition-transform duration-500 ease-(--ease-out-soft) group-hover:scale-[1.06]"
+          />
           <div className="absolute inset-0 bg-linear-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
           {recipe.cuisine && (
             <span className="absolute left-3 top-3 rounded-full bg-surface/90 px-2.5 py-0.5 text-xs font-medium text-foreground backdrop-blur-sm">
@@ -291,12 +295,9 @@ function RecipeCard({
         </button>
         <div className="flex flex-1 flex-col p-5">
           <button onClick={onExpand} className="text-left">
-            <motion.h3
-              layoutId={`recipe-title-${recipe.id}`}
-              className="font-medium leading-snug text-foreground transition-colors group-hover:text-accent-hover"
-            >
+            <h3 className="font-medium leading-snug text-foreground transition-colors group-hover:text-accent-hover">
               {recipe.title}
-            </motion.h3>
+            </h3>
           </button>
           <p className="mt-1 line-clamp-2 text-sm text-muted">{recipe.description}</p>
 
@@ -557,49 +558,72 @@ function ExpandedRecipe({
       {recipe && (
         <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 sm:p-8">
           <motion.div
-            className="fixed inset-0 bg-foreground/40 backdrop-blur-sm"
+            className="fixed inset-0 bg-foreground/40 backdrop-blur-md"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            animate={{ opacity: 1, transition: { duration: 0.25, ease: EASE_OUT } }}
+            exit={{ opacity: 0, transition: { duration: 0.18, ease: EASE_OUT } }}
             onClick={close}
           />
-          <motion.div className="relative z-10 w-full max-w-2xl">
+          <motion.div
+            className="relative z-10 my-auto w-full max-w-2xl"
+            initial={{ opacity: 0, scale: 0.94, y: 16, filter: "blur(8px)" }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: 0,
+              filter: "blur(0px)",
+              transition: { duration: 0.34, ease: EASE_OUT },
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0.96,
+              y: 12,
+              filter: "blur(6px)",
+              transition: { duration: 0.2, ease: EASE_OUT },
+            }}
+          >
             <Card className="overflow-hidden shadow-(--shadow-lg)">
               <div className="relative">
-                <motion.div layoutId={`recipe-img-${recipe.id}`}>
-                  <RecipeImage
-                    src={(full ?? recipe).imageUrl}
-                    title={recipe.title}
-                    className="h-64 w-full object-cover sm:h-80"
-                    nameClassName="text-4xl"
-                  />
-                </motion.div>
+                <RecipeImage
+                  src={(full ?? recipe).imageUrl}
+                  title={recipe.title}
+                  className="h-64 w-full object-cover sm:h-80"
+                  nameClassName="text-4xl"
+                />
                 <button
                   onClick={close}
                   aria-label="Close"
-                  className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-surface/90 text-foreground shadow-(--shadow-sm) backdrop-blur transition-colors hover:bg-surface"
+                  className="press absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-surface/90 text-foreground shadow-(--shadow-sm) backdrop-blur transition-colors hover:bg-surface"
                 >
                   <ArrowLeftIcon size={16} />
                 </button>
               </div>
 
-              <div className="p-6 sm:p-8">
-                <div className="flex flex-wrap items-center gap-2">
+              <motion.div
+                className="p-6 sm:p-8"
+                initial="hidden"
+                animate="show"
+                variants={{ show: { transition: { staggerChildren: 0.05, delayChildren: 0.12 } } }}
+              >
+                <motion.div
+                  className="flex flex-wrap items-center gap-2"
+                  variants={revealItem}
+                >
                   {full?.cuisine && <Badge>{full.cuisine}</Badge>}
                   {tags.map((t) => (
                     <Badge key={t} tone="accent">
                       {t}
                     </Badge>
                   ))}
-                </div>
+                </motion.div>
                 <motion.h2
-                  layoutId={`recipe-title-${recipe.id}`}
+                  variants={revealItem}
                   className="mt-3 font-display text-3xl font-semibold tracking-tight text-foreground"
                 >
                   {recipe.title}
                 </motion.h2>
 
-                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+                <motion.div variants={revealItem}>
                   <p className="mt-3 leading-relaxed text-muted">{(full ?? recipe).description}</p>
 
                   <div className="mt-6 flex flex-wrap gap-5 text-sm text-muted">
@@ -641,7 +665,7 @@ function ExpandedRecipe({
                     Open full page →
                   </Link>
                 </motion.div>
-              </div>
+              </motion.div>
             </Card>
           </motion.div>
         </div>
