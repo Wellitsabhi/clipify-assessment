@@ -118,10 +118,22 @@ export function ChefMark({ size = 40 }: { size?: number }) {
 
 /* ---- Crafted feature/marketing icons (replace emoji) ---- */
 
-function FeatureFrame({ children }: { children: React.ReactNode }) {
+type FeatureTone = "light" | "dark";
+
+function FeatureFrame({
+  children,
+  tone = "light",
+}: {
+  children: React.ReactNode;
+  tone?: FeatureTone;
+}) {
+  const frame =
+    tone === "dark"
+      ? "bg-white/10 ring-white/15 text-(--accent-ring)"
+      : "bg-accent-soft ring-accent/15 text-accent";
   return (
-    <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft ring-1 ring-accent/15">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <span className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl ring-1 ${frame}`}>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
         {children}
       </svg>
     </span>
@@ -129,28 +141,28 @@ function FeatureFrame({ children }: { children: React.ReactNode }) {
 }
 
 /** AI chat — speech bubble with a spark. */
-export function AIChatIcon() {
+export function AIChatIcon({ tone }: { tone?: FeatureTone }) {
   return (
-    <FeatureFrame>
+    <FeatureFrame tone={tone}>
       <path d="M4 5h16v10H9l-4 4v-4H4z" />
-      <path d="M14.5 8.2l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6z" fill="#15803d" stroke="none" />
+      <path d="M14.5 8.2l.6 1.4 1.4.6-1.4.6-.6 1.4-.6-1.4-1.4-.6 1.4-.6z" fill="currentColor" stroke="none" />
     </FeatureFrame>
   );
 }
 
 /** Catalog — open book. */
-export function CatalogIcon() {
+export function CatalogIcon({ tone }: { tone?: FeatureTone }) {
   return (
-    <FeatureFrame>
+    <FeatureFrame tone={tone}>
       <path d="M12 6c-1.5-1.2-3.5-1.5-6-1v12c2.5-.5 4.5-.2 6 1m0-12c1.5-1.2 3.5-1.5 6-1v12c-2.5-.5-4.5-.2-6 1m0-12v12" />
     </FeatureFrame>
   );
 }
 
 /** Plan — week calendar. */
-export function CalendarWeekIcon() {
+export function CalendarWeekIcon({ tone }: { tone?: FeatureTone }) {
   return (
-    <FeatureFrame>
+    <FeatureFrame tone={tone}>
       <rect x="4" y="5" width="16" height="15" rx="2" />
       <path d="M4 9h16M8 3v3M16 3v3M8 13h2M14 13h2M8 16.5h2M14 16.5h2" />
     </FeatureFrame>

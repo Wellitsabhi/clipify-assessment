@@ -2,7 +2,10 @@
 
 import ChefLogo from "@/app/components/ChefLogo";
 import { Button, Input, Label, Spinner } from "@/app/components/ui";
-import { ShaderBackground } from "@/app/components/ShaderBackground";
+import { Aurora } from "@/app/components/Aurora";
+import { BlurText } from "@/app/components/BlurText";
+import { GlassSurface } from "@/app/components/GlassSurface";
+import { AIChatIcon, CalendarWeekIcon, CatalogIcon } from "@/app/components/AnimatedIcons";
 import { FadeIn } from "@/app/components/motion";
 import { motion } from "motion/react";
 import Link from "next/link";
@@ -99,18 +102,10 @@ export default function LoginPage() {
 /* Shared shell for login + register                                          */
 /* -------------------------------------------------------------------------- */
 
-const FLOATING = [
-  { e: "🥑", top: "16%", left: "12%", d: 0 },
-  { e: "🍅", top: "30%", left: "78%", d: 0.6 },
-  { e: "🥕", top: "62%", left: "18%", d: 1.1 },
-  { e: "🌿", top: "72%", left: "70%", d: 0.3 },
-  { e: "🍋", top: "44%", left: "46%", d: 0.9 },
-];
-
-const NUDGES = [
-  "AI recipes in seconds",
-  "Plan a whole week visually",
-  "Your catalog, beautifully organized",
+const HIGHLIGHTS = [
+  { Icon: AIChatIcon, label: "AI recipes in seconds", sub: "Describe a craving, get a full recipe." },
+  { Icon: CatalogIcon, label: "A catalog you'll love", sub: "Searchable, tagged, beautifully kept." },
+  { Icon: CalendarWeekIcon, label: "Plan the whole week", sub: "Breakfast to dinner, sorted." },
 ];
 
 export function AuthShell({
@@ -128,77 +123,67 @@ export function AuthShell({
 }) {
   return (
     <main className="relative flex min-h-screen flex-col lg:flex-row">
-      {/* Left: poppy hero with shader + floating food */}
-      <section className="relative hidden overflow-hidden lg:flex lg:w-1/2 lg:flex-col lg:justify-between lg:p-12">
-        <ShaderBackground />
-        {FLOATING.map((f) => (
-          <motion.span
-            key={f.e}
-            className="pointer-events-none absolute text-4xl drop-shadow-sm select-none"
-            style={{ top: f.top, left: f.left }}
-            animate={{ y: [0, -14, 0], rotate: [-4, 4, -4] }}
-            transition={{ duration: 6 + f.d * 2, repeat: Infinity, ease: "easeInOut", delay: f.d }}
-            aria-hidden
-          >
-            {f.e}
-          </motion.span>
-        ))}
+      {/* Left: deep-green aurora hero */}
+      <section className="bg-forest relative hidden overflow-hidden text-mint lg:flex lg:w-[55%] lg:flex-col lg:justify-between lg:p-14">
+        <Aurora className="opacity-70" colors={["#34d399", "#15803d", "#86efac"]} />
+        <div className="bg-dots bg-dots-fade pointer-events-none absolute inset-0 opacity-30 text-[rgba(255,255,255,0.35)]" aria-hidden />
 
         <div className="relative z-10">
           <Link href="/landing" className="inline-flex items-center gap-2.5">
             <ChefLogo size={36} href={null} />
-            <span className="font-display text-lg font-semibold text-foreground">MealPlan Pro</span>
+            <span className="font-display text-lg font-semibold text-white">MealPlan Pro</span>
           </Link>
         </div>
 
         <div className="relative z-10 max-w-md">
-          <FadeIn>
-            <h2 className="font-display text-4xl font-semibold leading-tight text-foreground">
-              Cook with a little
-              <span className="text-accent"> joy</span>, plan with zero stress.
-            </h2>
-          </FadeIn>
-          <FadeIn delay={0.1}>
-            <ul className="mt-7 space-y-2.5">
-              {NUDGES.map((n) => (
-                <li key={n} className="flex items-center gap-2.5 text-sm text-muted">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent text-[10px] text-white">
-                    ✓
+          <h2 className="font-display text-[2.75rem] font-semibold leading-[1.05] text-white">
+            <BlurText text="Cook with a little joy," as="span" className="block" />
+            <BlurText text="plan with zero stress." as="span" className="block text-(--accent-ring)" delay={0.35} />
+          </h2>
+          <FadeIn delay={0.5}>
+            <ul className="mt-9 space-y-3.5">
+              {HIGHLIGHTS.map((h) => (
+                <li key={h.label} className="flex items-center gap-3.5">
+                  <span className="shrink-0">
+                    <h.Icon tone="dark" />
                   </span>
-                  {n}
+                  <span>
+                    <span className="block text-sm font-medium text-white">{h.label}</span>
+                    <span className="block text-xs text-emerald-100/70">{h.sub}</span>
+                  </span>
                 </li>
               ))}
             </ul>
           </FadeIn>
         </div>
 
-        {/* Clipify easter egg — a quiet personal touch */}
-        <p className="relative z-10 text-xs text-subtle">
+        <p className="relative z-10 text-xs text-emerald-100/60">
           Crafted with care · a{" "}
-          <span className="font-display italic text-accent-hover">Clipify</span> kitchen joint
+          <span className="font-display italic text-(--accent-ring)">Clipify</span> kitchen joint
         </p>
       </section>
 
-      {/* Right: form */}
-      <section className="relative flex flex-1 items-center justify-center bg-surface px-4 py-12">
-        <div className="w-full max-w-sm">
-          <FadeIn>
-            <div className="mb-8 lg:hidden">
-              <ChefLogo size={44} href="/landing" />
+      {/* Right: glass form card */}
+      <section className="bg-garden relative flex flex-1 items-center justify-center overflow-hidden px-4 py-12">
+        <Aurora className="opacity-25 lg:hidden" />
+        <FadeIn className="relative z-10 w-full max-w-sm">
+          <GlassSurface className="p-7 sm:p-8">
+            <div className="mb-7">
+              <div className="mb-6 lg:hidden">
+                <ChefLogo size={44} href="/landing" />
+              </div>
+              <p className="text-sm font-medium text-accent">{eyebrow}</p>
+              <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight text-foreground">
+                {title}
+              </h1>
+              <p className="mt-2 text-sm text-muted">{subtitle}</p>
             </div>
-            <p className="text-sm font-medium text-accent">{eyebrow}</p>
-            <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight text-foreground">
-              {title}
-            </h1>
-            <p className="mt-2 text-sm text-muted">{subtitle}</p>
-          </FadeIn>
 
-          <FadeIn delay={0.08}>
-            <div className="mt-8">{children}</div>
-          </FadeIn>
+            {children}
 
-          <p className="mt-6 text-center text-sm text-muted">{footer}</p>
-        </div>
+            <p className="mt-6 text-center text-sm text-muted">{footer}</p>
+          </GlassSurface>
+        </FadeIn>
       </section>
     </main>
   );

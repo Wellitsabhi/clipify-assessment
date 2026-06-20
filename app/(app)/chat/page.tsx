@@ -86,7 +86,7 @@ export default function ChatPage() {
         </div>
       </div>
 
-      <div className="flex-1 space-y-5 overflow-y-auto py-6">
+      <div className="no-scrollbar flex-1 space-y-5 overflow-y-auto py-6">
         {booting ? (
           <div className="flex justify-center pt-10">
             <Spinner className="h-5 w-5 text-subtle" />

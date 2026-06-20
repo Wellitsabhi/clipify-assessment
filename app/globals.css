@@ -155,6 +155,21 @@ h1.font-display,
     var(--forest);
 }
 
+/* Hide scrollbar but keep scrolling (chat, preview body). */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Soft white fade at the bottom edge to hint more scrollable content. */
+.fade-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent);
+}
+
 /* Press feedback — apply to any pressable that isn't a <Button>. */
 .press {
   transition: transform 140ms var(--ease-out);

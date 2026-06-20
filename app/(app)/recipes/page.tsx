@@ -643,14 +643,21 @@ function ExpandedRecipe({
                   {full?.ingredients && full.ingredients.length > 0 ? (
                     <>
                       <h3 className="mt-7 font-display text-lg font-semibold text-foreground">Ingredients</h3>
-                      <ul className="mt-3 divide-y divide-border rounded-xl border border-border">
-                        {full.ingredients.map((ing) => (
-                          <li key={ing.id ?? ing.name} className="flex items-baseline justify-between px-4 py-2.5 text-sm">
-                            <span className="text-foreground">{ing.name}</span>
-                            <span className="text-muted">{ing.amount} {ing.unit}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      {/* Capped, scrollable, fades out at the bottom when overflowing. */}
+                      <div
+                        className={`no-scrollbar mt-3 max-h-56 overflow-y-auto ${
+                          full.ingredients.length > 7 ? "fade-bottom pb-6" : ""
+                        }`}
+                      >
+                        <ul className="divide-y divide-border rounded-xl border border-border">
+                          {full.ingredients.map((ing) => (
+                            <li key={ing.id ?? ing.name} className="flex items-baseline justify-between px-4 py-2.5 text-sm">
+                              <span className="text-foreground">{ing.name}</span>
+                              <span className="text-muted">{ing.amount} {ing.unit}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </>
                   ) : (
                     <div className="mt-6 flex justify-center py-4">

@@ -43,16 +43,9 @@ const STEPS = [
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Sticky glass nav */}
-      <header className="sticky top-0 z-30 px-3 pt-3 sm:px-5 sm:pt-4">
-        <nav
-          className="mx-auto flex max-w-5xl items-center justify-between gap-4 rounded-2xl border border-white/50 bg-surface/45 px-4 py-2.5 backdrop-blur-2xl backdrop-saturate-150"
-          style={{
-            backgroundImage:
-              "linear-gradient(180deg, rgba(255,255,255,0.45), rgba(255,255,255,0.05) 45%)",
-            boxShadow: "inset 0 1px 0 0 rgba(255,255,255,0.7), var(--shadow-md)",
-          }}
-        >
+      {/* Sticky solid nav (no glass, per design direction) */}
+      <header className="sticky top-0 z-30 border-b border-border bg-background">
+        <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
           <div className="flex items-center gap-2.5">
             <ChefLogo size={32} href={null} />
             <span className="font-display font-semibold tracking-tight">MealPlan Pro</span>
@@ -177,22 +170,21 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* CTA — deep-forest aurora panel */}
       <section className="mx-auto max-w-4xl px-6 py-20">
-        <div className="relative overflow-hidden rounded-3xl bg-accent px-8 py-14 text-center text-white shadow-(--shadow-lg)">
-          <div className="pointer-events-none absolute inset-0 opacity-30">
-            <ShaderBackground />
-          </div>
+        <div className="bg-forest relative overflow-hidden rounded-3xl px-8 py-16 text-center text-white shadow-(--shadow-lg)">
+          <Aurora className="opacity-60" colors={["#34d399", "#15803d", "#86efac"]} />
+          <div className="bg-dots bg-dots-fade pointer-events-none absolute inset-0 opacity-20 text-[rgba(255,255,255,0.4)]" aria-hidden />
           <div className="relative z-10">
             <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
               Ready to take dinner off your plate?
             </h2>
-            <p className="mx-auto mt-3 max-w-md text-emerald-50">
+            <p className="mx-auto mt-3 max-w-md text-emerald-100/80">
               Create your free account and plan your first week today.
             </p>
             <Link
               href="/register"
-              className="mt-7 inline-block rounded-lg bg-white px-6 py-3.5 font-medium text-accent-hover transition-colors duration-200 hover:bg-emerald-50"
+              className="press mt-8 inline-block rounded-xl bg-white px-6 py-3.5 font-medium text-accent-hover shadow-(--shadow-md) transition-colors duration-150 hover:bg-emerald-50"
             >
               Get started — it&apos;s free
             </Link>
