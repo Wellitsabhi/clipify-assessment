@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Badge, Button, Card, PageLoader, Spinner } from "@/app/components/ui";
+import { CheckIcon } from "@/app/components/icons";
 import { api } from "@/app/lib/api";
 import { useUser } from "@/app/lib/useUser";
 
@@ -51,7 +52,7 @@ export default function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-      <h1 className="text-3xl font-semibold tracking-tight text-foreground">Settings</h1>
+      <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground">Settings</h1>
       <p className="mt-1.5 text-sm text-muted">Manage your account and subscription.</p>
 
       {error && <p className="mt-6 text-sm text-danger">{error}</p>}
@@ -94,10 +95,13 @@ export default function SettingsPage() {
                 <span className="text-2xl font-semibold text-foreground">{PRO_PRICE}</span>
                 <span className="text-sm text-muted">billed monthly · cancel anytime</span>
               </div>
-              <ul className="mt-4 space-y-2">
+              <ul className="mt-4 space-y-2.5">
                 {PRO_FEATURES.map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-foreground">
-                    <span className="text-accent">✓</span> {f}
+                  <li key={f} className="flex items-center gap-2.5 text-sm text-foreground">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-soft text-accent">
+                      <CheckIcon size={13} />
+                    </span>
+                    {f}
                   </li>
                 ))}
               </ul>

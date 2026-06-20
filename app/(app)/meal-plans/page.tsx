@@ -2,7 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { motion } from "motion/react";
 import { Button, Card, EmptyState, Input, Label, PageLoader, Spinner } from "@/app/components/ui";
+import { Modal } from "@/app/(app)/recipes/page";
+import { PlusIcon } from "@/app/components/icons";
+import { staggerContainer, staggerItem } from "@/app/components/motion";
 import { api } from "@/app/lib/api";
 import type { MealPlan } from "@/app/lib/types";
 
@@ -34,10 +38,14 @@ export default function MealPlansPage() {
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">Meal plans</h1>
+          <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground">
+            Meal plans
+          </h1>
           <p className="mt-1.5 text-sm text-muted">Organize your week, one meal at a time.</p>
         </div>
-        <Button onClick={() => setShowCreate(true)}>+ New plan</Button>
+        <Button onClick={() => setShowCreate(true)}>
+          <PlusIcon size={16} /> New plan
+        </Button>
       </div>
 
       {plans === null ? (
@@ -47,24 +55,50 @@ export default function MealPlansPage() {
           icon="🗓️"
           title="No meal plans yet"
           description="Create a weekly plan and fill it with recipes from your catalog."
-          action={<Button onClick={() => setShowCreate(true)}>+ New plan</Button>}
+          action={
+            <Button onClick={() => setShowCreate(true)}>
+              <PlusIcon size={16} /> New plan
+            </Button>
+          }
         />
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+        >
           {plans.map((plan) => (
-            <Link key={plan.id} href={`/meal-plans/${plan.id}`}>
-              <Card className="h-full p-6 transition-shadow hover:shadow-(--shadow-md)">
-                <h2 className="text-lg font-semibold text-foreground">{plan.name}</h2>
-                <p className="mt-1 text-sm text-muted">
-                  {formatRange(plan.startDate, plan.endDate)}
-                </p>
-                <p className="mt-4 text-sm text-subtle">
-                  {plan.recipes.length} {plan.recipes.length === 1 ? "meal" : "meals"} planned
-                </p>
-              </Card>
-            </Link>
+            <motion.div key={plan.id} variants={staggerItem}>
+              <Link href={`/meal-plans/${plan.id}`}>
+                <Card className="group h-full p-6 transition-all duration-300 ease-(--ease-out-soft) hover:-translate-y-1 hover:shadow-(--shadow-md)">
+                  <div className="flex items-start justify-between">
+                    <h2 className="text-lg font-medium text-foreground transition-colors group-hover:text-accent-hover">
+                      {plan.name}
+                    </h2>
+                    <span className="text-subtle opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100">
+                      →
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm text-muted">
+                    {formatRange(plan.startDate, plan.endDate)}
+                  </p>
+                  <div className="mt-5 flex items-center gap-2">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-2">
+                      <div
+                        className="h-full rounded-full bg-accent transition-all duration-500"
+                        style={{ width: `${Math.min(100, (plan.recipes.length / 21) * 100)}%` }}
+                      />
+                    </div>
+                    <span className="text-xs text-subtle">
+                      {plan.recipes.length}/21
+                    </span>
+                  </div>
+                </Card>
+              </Link>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
 
       {showCreate && (
@@ -87,7 +121,6 @@ function CreatePlanModal({
   onClose: () => void;
   onCreated: () => void;
 }) {
-  // Default to the upcoming Monday–Sunday week.
   const today = new Date();
   const monday = new Date(today);
   monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
@@ -116,55 +149,50 @@ function CreatePlanModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <Card className="w-full max-w-md animate-in p-6">
-        <div onClick={(e) => e.stopPropagation()}>
-          <h2 className="text-lg font-semibold text-foreground">New meal plan</h2>
-          <form onSubmit={handleSubmit} className="mt-5 space-y-4">
-            {error && <p className="text-sm text-danger">{error}</p>}
-            <div>
-              <Label htmlFor="p-name">Name</Label>
-              <Input
-                id="p-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Healthy week"
-                required
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="p-start">Start</Label>
-                <Input
-                  id="p-start"
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="p-end">End</Label>
-                <Input
-                  id="p-end"
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="secondary" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={saving}>
-                {saving ? <Spinner /> : "Create plan"}
-              </Button>
-            </div>
-          </form>
+    <Modal onClose={onClose} title="New meal plan" subtitle="Pick a week and start adding recipes.">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {error && <p className="text-sm text-danger">{error}</p>}
+        <div>
+          <Label htmlFor="p-name">Name</Label>
+          <Input
+            id="p-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Healthy week"
+            required
+          />
         </div>
-      </Card>
-    </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="p-start">Start</Label>
+            <Input
+              id="p-start"
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="p-end">End</Label>
+            <Input
+              id="p-end"
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              required
+            />
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 pt-2">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={saving}>
+            {saving ? <Spinner /> : "Create plan"}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }

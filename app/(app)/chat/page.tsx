@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { motion } from "motion/react";
 import { Button, Spinner } from "@/app/components/ui";
+import { SendIcon, SparkleIcon } from "@/app/components/icons";
 import { api } from "@/app/lib/api";
 import type { Recipe } from "@/app/lib/types";
 
@@ -66,11 +68,18 @@ export default function ChatPage() {
 
   return (
     <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-3xl flex-col px-4 sm:px-6">
-      <div className="border-b border-border py-5">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">Chef Ferraro</h1>
-        <p className="text-sm text-muted">
-          Describe what you&apos;re craving and I&apos;ll create a recipe for your catalog.
-        </p>
+      <div className="flex items-center gap-3 border-b border-border py-5">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-accent to-citrus text-white shadow-(--shadow-sm)">
+          <SparkleIcon size={18} />
+        </span>
+        <div>
+          <h1 className="font-display text-xl font-semibold tracking-tight text-foreground">
+            Chef Ferraro
+          </h1>
+          <p className="text-sm text-muted">
+            Describe what you&apos;re craving and I&apos;ll cook up a recipe for your catalog.
+          </p>
+        </div>
       </div>
 
       <div className="flex-1 space-y-5 overflow-y-auto py-6">
@@ -99,11 +108,25 @@ export default function ChatPage() {
         )}
 
         {loading && (
-          <div className="flex justify-start">
-            <div className="rounded-2xl rounded-bl-sm border border-border bg-surface px-4 py-3 text-sm text-muted">
-              <Spinner className="h-4 w-4" /> Chef Ferraro is thinking…
+          <motion.div
+            className="flex justify-start"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm border border-border bg-surface px-4 py-3.5 text-sm text-muted">
+              <span className="flex gap-1">
+                {[0, 1, 2].map((i) => (
+                  <motion.span
+                    key={i}
+                    className="h-1.5 w-1.5 rounded-full bg-accent"
+                    animate={{ y: [0, -4, 0], opacity: [0.4, 1, 0.4] }}
+                    transition={{ duration: 0.9, repeat: Infinity, delay: i * 0.15 }}
+                  />
+                ))}
+              </span>
+              Chef Ferraro is cooking…
             </div>
-          </div>
+          </motion.div>
         )}
         <div ref={endRef} />
       </div>
@@ -122,8 +145,14 @@ export default function ChatPage() {
             placeholder="Ask Chef Ferraro anything…"
             className="flex-1 rounded-full border border-(--border-strong) bg-surface px-4 py-3 text-sm text-foreground placeholder:text-subtle focus:border-accent focus:outline-none focus:ring-2 focus:ring-(--accent-ring)/50"
           />
-          <Button type="submit" size="lg" disabled={loading || !input.trim()} className="rounded-full">
-            Send
+          <Button
+            type="submit"
+            size="lg"
+            disabled={loading || !input.trim()}
+            className="rounded-full px-5"
+            aria-label="Send message"
+          >
+            <SendIcon size={18} />
           </Button>
         </form>
       </div>
@@ -134,7 +163,12 @@ export default function ChatPage() {
 function Bubble({ msg }: { msg: Message }) {
   const isUser = msg.role === "user";
   return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+    <motion.div
+      className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+    >
       <div className={`max-w-[85%] ${isUser ? "" : "space-y-3"}`}>
         <div
           className={`whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-relaxed ${
@@ -162,6 +196,6 @@ function Bubble({ msg }: { msg: Message }) {
           </Link>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

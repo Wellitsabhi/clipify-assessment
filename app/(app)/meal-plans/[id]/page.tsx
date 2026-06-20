@@ -2,7 +2,11 @@
 
 import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { motion } from "motion/react";
 import { Button, Card, PageLoader, Select, Spinner } from "@/app/components/ui";
+import { ArrowLeftIcon, PlusIcon } from "@/app/components/icons";
+import { MealIcon } from "@/app/components/MealIcon";
+import { staggerContainer, staggerItem } from "@/app/components/motion";
 import { api } from "@/app/lib/api";
 import type { MealPlan, Recipe } from "@/app/lib/types";
 
@@ -42,10 +46,7 @@ export default function MealPlanDetailPage({
     setAdding(true);
     setError("");
     try {
-      await api(`/api/meal-plans/${id}`, {
-        method: "POST",
-        body: { day, mealType, recipeId },
-      });
+      await api(`/api/meal-plans/${id}`, { method: "POST", body: { day, mealType, recipeId } });
       await loadPlan();
     } catch (e) {
       setError((e as Error).message);
@@ -67,14 +68,23 @@ export default function MealPlanDetailPage({
 
   if (!plan) return error ? <ErrorState message={error} /> : <PageLoader />;
 
+  const totalMeals = plan.recipes.length;
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <Link href="/meal-plans" className="text-sm text-muted hover:text-foreground">
-        ← Meal plans
+      <Link
+        href="/meal-plans"
+        className="inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-foreground"
+      >
+        <ArrowLeftIcon size={15} /> Meal plans
       </Link>
-      <h1 className="mt-3 text-3xl font-semibold tracking-tight text-foreground">{plan.name}</h1>
+      <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight text-foreground">
+        {plan.name}
+      </h1>
       <p className="mt-1.5 text-sm text-muted">
         {new Date(plan.startDate).toLocaleDateString()} – {new Date(plan.endDate).toLocaleDateString()}
+        {" · "}
+        {totalMeals} {totalMeals === 1 ? "meal" : "meals"} planned
       </p>
 
       <Card className="mt-6 p-5">
@@ -108,53 +118,62 @@ export default function MealPlanDetailPage({
             </Select>
           </Field>
           <Button onClick={handleAdd} disabled={adding || !recipeId}>
-            {adding ? <Spinner /> : "Add"}
+            {adding ? <Spinner /> : <><PlusIcon size={16} /> Add</>}
           </Button>
         </div>
         {error && <p className="mt-3 text-sm text-danger">{error}</p>}
       </Card>
 
-      <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-7">
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="show"
+        className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-7"
+      >
         {DAYS.map((d) => (
-          <Card key={d} className="flex min-h-50 flex-col p-3">
-            <h3 className="mb-2 text-sm font-semibold text-foreground">{cap(d)}</h3>
-            <div className="space-y-3">
-              {MEAL_TYPES.map((meal) => {
-                const items = plan.recipes.filter((r) => r.day === d && r.mealType === meal);
-                return (
-                  <div key={meal}>
-                    <p className="text-xs uppercase tracking-wide text-subtle">{cap(meal)}</p>
-                    {items.length === 0 ? (
-                      <p className="mt-0.5 text-xs text-(--border-strong)">—</p>
-                    ) : (
-                      items.map((item) => (
-                        <div
-                          key={item.id}
-                          className="group mt-1 flex items-center justify-between gap-1 rounded-md bg-accent-soft px-2 py-1"
-                        >
-                          <Link
-                            href={`/recipes/${item.recipe.id}`}
-                            className="truncate text-xs font-medium text-accent-hover hover:underline"
+          <motion.div key={d} variants={staggerItem}>
+            <Card className="flex min-h-52 flex-col p-3">
+              <h3 className="mb-3 text-sm font-semibold text-foreground">{cap(d)}</h3>
+              <div className="space-y-3">
+                {MEAL_TYPES.map((meal) => {
+                  const items = plan.recipes.filter((r) => r.day === d && r.mealType === meal);
+                  return (
+                    <div key={meal}>
+                      <p className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-subtle">
+                        <MealIcon type={meal} /> {cap(meal)}
+                      </p>
+                      {items.length === 0 ? (
+                        <p className="mt-1 text-xs text-(--border-strong)">—</p>
+                      ) : (
+                        items.map((item) => (
+                          <div
+                            key={item.id}
+                            className="group mt-1 flex items-center justify-between gap-1 rounded-md bg-accent-soft px-2 py-1 transition-colors hover:bg-accent/10"
                           >
-                            {item.recipe.title}
-                          </Link>
-                          <button
-                            onClick={() => handleRemove(item.id)}
-                            className="text-xs text-subtle opacity-0 transition-opacity hover:text-danger group-hover:opacity-100"
-                            aria-label="Remove meal"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </Card>
+                            <Link
+                              href={`/recipes/${item.recipe.id}`}
+                              className="truncate text-xs font-medium text-accent-hover hover:underline"
+                            >
+                              {item.recipe.title}
+                            </Link>
+                            <button
+                              onClick={() => handleRemove(item.id)}
+                              className="text-xs text-subtle opacity-0 transition-opacity hover:text-danger group-hover:opacity-100"
+                              aria-label={`Remove ${item.recipe.title}`}
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -171,7 +190,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 function ErrorState({ message }: { message: string }) {
   return (
     <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-      <h1 className="text-2xl font-semibold text-foreground">Couldn&apos;t load this plan</h1>
+      <h1 className="font-display text-2xl font-semibold text-foreground">
+        Couldn&apos;t load this plan
+      </h1>
       <p className="mt-2 text-sm text-muted">{message}</p>
       <Link href="/meal-plans" className="mt-4 inline-block text-sm text-accent-hover hover:underline">
         ← Back to meal plans

@@ -136,6 +136,26 @@ body {
   animation: fade-in-up 0.45s var(--ease-out-soft) both;
 }
 
+/* Meal-type glyph idle motions — each with its own custom easing. */
+.meal-glyph {
+  will-change: transform;
+}
+@keyframes meal-rise {
+  0%, 100% { transform: translateY(1px); }
+  50% { transform: translateY(-1.5px); }
+}
+@keyframes meal-spin {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+@keyframes meal-tilt {
+  0%, 100% { transform: rotate(-10deg) translateY(0); }
+  50% { transform: rotate(6deg) translateY(-1px); }
+}
+.meal-rise { animation: meal-rise 3.2s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+.meal-spin { animation: meal-spin 6s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+.meal-tilt { animation: meal-tilt 4.4s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
+
 /* Steam wisp for "cooking" microinteractions. */
 @keyframes steam {
   0% {
