@@ -6,6 +6,8 @@ import { motion } from "motion/react";
 import { Button, Spinner } from "@/app/components/ui";
 import { SendIcon } from "@/app/components/icons";
 import { ChefMark } from "@/app/components/AnimatedIcons";
+import { Markdown } from "@/app/components/Markdown";
+import { GlassSurface } from "@/app/components/GlassSurface";
 import { RecipeImage } from "@/app/components/RecipeImage";
 import { api } from "@/app/lib/api";
 import type { Recipe } from "@/app/lib/types";
@@ -143,12 +145,14 @@ export default function ChatPage() {
           }}
           className="flex gap-2"
         >
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask Chef Ferraro anything…"
-            className="flex-1 rounded-full border border-(--border-strong) bg-surface px-4 py-3 text-sm text-foreground placeholder:text-subtle focus:border-accent focus:outline-none focus:ring-2 focus:ring-(--accent-ring)/50"
-          />
+          <GlassSurface rounded="rounded-full" className="flex-1">
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask Chef Ferraro anything…"
+              className="w-full rounded-full bg-transparent px-4 py-3 text-sm text-foreground placeholder:text-subtle focus:outline-none"
+            />
+          </GlassSurface>
           <Button
             type="submit"
             size="lg"
@@ -174,15 +178,15 @@ function Bubble({ msg }: { msg: Message }) {
       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className={`max-w-[85%] ${isUser ? "" : "space-y-3"}`}>
-        <div
-          className={`whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-            isUser
-              ? "rounded-br-sm bg-accent text-white"
-              : "rounded-bl-sm border border-border bg-surface text-foreground"
-          }`}
-        >
-          {msg.content}
-        </div>
+        {isUser ? (
+          <div className="whitespace-pre-wrap rounded-2xl rounded-br-sm bg-accent px-4 py-3 text-sm leading-relaxed text-white">
+            {msg.content}
+          </div>
+        ) : (
+          <div className="rounded-2xl rounded-bl-sm border border-border bg-surface px-4 py-3 shadow-(--shadow-sm)">
+            <Markdown>{msg.content}</Markdown>
+          </div>
+        )}
         {msg.recipe && (
           <Link
             href={`/recipes/${msg.recipe.id}`}
