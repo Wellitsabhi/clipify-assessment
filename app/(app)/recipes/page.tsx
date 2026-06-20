@@ -33,8 +33,11 @@ export default function RecipesPage() {
   const { user } = useUser();
   const [recipes, setRecipes] = useState<Recipe[] | null>(null);
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(false);
   const [error, setError] = useState("");
+
+  const PER_PAGE = 9;
 
   const load = useCallback(async () => {
     try {
@@ -62,6 +65,15 @@ export default function RecipesPage() {
         (r.dietaryTags ?? "").toLowerCase().includes(q)
     );
   }, [recipes, query]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const safePage = Math.min(page, pageCount);
+  const paged = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+
+  // Reset to page 1 whenever the search changes.
+  useEffect(() => {
+    setPage(1);
+  }, [query]);
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this recipe? This can't be undone.")) return;
@@ -141,21 +153,25 @@ export default function RecipesPage() {
           }
         />
       ) : (
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          animate="show"
-          className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
-        >
-          {filtered.map((recipe) => (
-            <RecipeCard
-              key={recipe.id}
-              recipe={recipe}
-              canDelete={recipe.userId === user?.id}
-              onDelete={handleDelete}
-            />
-          ))}
-        </motion.div>
+        <>
+          <motion.div
+            key={safePage}
+            variants={staggerContainer}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          >
+            {paged.map((recipe) => (
+              <RecipeCard
+                key={recipe.id}
+                recipe={recipe}
+                canDelete={recipe.userId === user?.id}
+                onDelete={handleDelete}
+              />
+            ))}
+          </motion.div>
+          <Pager page={safePage} pageCount={pageCount} onChange={setPage} />
+        </>
       )}
 
       {showCreate && (
@@ -168,6 +184,53 @@ export default function RecipesPage() {
         />
       )}
     </div>
+  );
+}
+
+function Pager({
+  page,
+  pageCount,
+  onChange,
+}: {
+  page: number;
+  pageCount: number;
+  onChange: (p: number) => void;
+}) {
+  if (pageCount <= 1) return null;
+  const pages = Array.from({ length: pageCount }, (_, i) => i + 1);
+  return (
+    <nav className="mt-12 flex items-center justify-center gap-1.5" aria-label="Pagination">
+      <button
+        onClick={() => onChange(page - 1)}
+        disabled={page === 1}
+        aria-label="Previous page"
+        className="flex h-9 w-9 items-center justify-center rounded-lg border border-(--border-strong) text-muted transition-colors hover:bg-surface-2 disabled:opacity-40 disabled:hover:bg-transparent"
+      >
+        ‹
+      </button>
+      {pages.map((p) => (
+        <button
+          key={p}
+          onClick={() => onChange(p)}
+          aria-current={p === page ? "page" : undefined}
+          className={`h-9 min-w-9 rounded-lg px-2 text-sm font-medium transition-colors ${
+            p === page
+              ? "bg-accent text-white shadow-(--shadow-sm)"
+              : "border border-(--border-strong) text-muted hover:bg-surface-2"
+          }`}
+        >
+          {p}
+        </button>
+      ))}
+      <button
+        onClick={() => onChange(page + 1)}
+        disabled={page === pageCount}
+        aria-label="Next page"
+        className="flex h-9 w-9 items-center justify-center rounded-lg border border-(--border-strong) text-muted transition-colors hover:bg-surface-2 disabled:opacity-40 disabled:hover:bg-transparent"
+      >
+        ›
+      </button>
+    </nav>
   );
 }
 
