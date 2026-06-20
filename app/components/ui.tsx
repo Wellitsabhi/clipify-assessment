@@ -99,7 +99,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(functio
 /* -------------------------------------------------------------------------- */
 
 const FIELD =
-  "w-full rounded-lg border border-(--border-strong) bg-surface px-3.5 py-2.5 text-sm text-foreground placeholder:text-subtle transition-shadow focus:outline-none focus:border-accent focus:ring-2 focus:ring-(--accent-ring)/50";
+  "w-full rounded-lg border border-(--border-strong) bg-surface px-3.5 py-2.5 text-sm text-foreground placeholder:text-subtle transition-[border-color,box-shadow] duration-150 [transition-timing-function:var(--ease-out)] focus:outline-none focus:border-foreground/30 focus:ring-2 focus:ring-foreground/8";
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
   function Input({ className, ...props }, ref) {

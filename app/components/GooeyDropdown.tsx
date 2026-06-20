@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import { EASE_OUT } from "@/app/components/motion";
 
 export interface GooeyOption {
   value: string;
@@ -9,9 +10,9 @@ export interface GooeyOption {
 }
 
 /**
- * A custom dropdown with a gooey/blob reveal (SVG goo filter + staggered spring
- * items), inspired by Aceternity's gooey dropdown. Keyboard + click-outside
- * aware. Drop-in replacement for a styled <select>.
+ * Custom dropdown with a gooey/blob reveal (SVG goo filter + staggered items).
+ * Origin-aware (scales from the top, where the trigger is), strong ease-out
+ * enter, faster exit (Emil). Click-outside + Escape aware.
  */
 export function GooeyDropdown({
   value,
@@ -46,15 +47,14 @@ export function GooeyDropdown({
 
   return (
     <div ref={ref} className="relative">
-      {/* goo filter */}
       <svg className="pointer-events-none absolute h-0 w-0" aria-hidden>
         <defs>
           <filter id={filterId}>
-            <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
             <feColorMatrix
               in="blur"
               mode="matrix"
-              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10"
+              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9"
               result="goo"
             />
             <feBlend in="SourceGraphic" in2="goo" />
@@ -68,12 +68,12 @@ export function GooeyDropdown({
         aria-expanded={open}
         aria-label={ariaLabel}
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between gap-2 rounded-lg border border-(--border-strong) bg-surface px-3.5 py-2.5 text-left text-sm text-foreground transition-colors hover:bg-surface-2 focus:outline-none focus:ring-2 focus:ring-(--accent-ring)/50"
+        className="press flex w-full items-center justify-between gap-2 rounded-lg border border-(--border-strong) bg-surface px-3.5 py-2.5 text-left text-sm text-foreground transition-colors hover:bg-surface-2 focus:outline-none focus:border-foreground/30"
       >
         <span className="truncate">{selected?.label ?? "Select…"}</span>
         <motion.span
           animate={{ rotate: open ? 180 : 0 }}
-          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.2, ease: EASE_OUT }}
           className="text-subtle"
         >
           ▾
@@ -83,18 +83,22 @@ export function GooeyDropdown({
       <AnimatePresence>
         {open && (
           <motion.div
-            className="absolute z-40 mt-2 w-full"
-            style={{ filter: `url(#${filterId})` }}
-            initial="closed"
-            animate="open"
-            exit="closed"
+            className="absolute left-0 right-0 top-full z-40 mt-2 origin-top"
+            style={{ filter: `url(#${filterId})`, transformOrigin: "top center" }}
+            initial={{ opacity: 0, y: -6, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.97, transition: { duration: 0.13, ease: EASE_OUT } }}
+            transition={{ duration: 0.22, ease: EASE_OUT }}
           >
             <motion.ul
               role="listbox"
-              className="max-h-64 overflow-auto rounded-xl bg-accent p-1.5"
+              className="max-h-64 overflow-auto rounded-xl bg-accent p-1.5 shadow-(--shadow-lg)"
+              initial="closed"
+              animate="open"
+              exit="closed"
               variants={{
-                open: { transition: { staggerChildren: 0.035 } },
-                closed: { transition: { staggerChildren: 0.02, staggerDirection: -1 } },
+                open: { transition: { staggerChildren: 0.03 } },
+                closed: { transition: { staggerChildren: 0.015, staggerDirection: -1 } },
               }}
             >
               {options.map((opt) => (
@@ -104,9 +108,9 @@ export function GooeyDropdown({
                   aria-selected={opt.value === value}
                   variants={{
                     open: { opacity: 1, y: 0, scale: 1 },
-                    closed: { opacity: 0, y: -14, scale: 0.6 },
+                    closed: { opacity: 0, y: -12, scale: 0.7 },
                   }}
-                  transition={{ type: "spring", stiffness: 400, damping: 26 }}
+                  transition={{ type: "spring", duration: 0.4, bounce: 0.25 }}
                   onClick={() => {
                     onChange(opt.value);
                     setOpen(false);
