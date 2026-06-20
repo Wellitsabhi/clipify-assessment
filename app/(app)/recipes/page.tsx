@@ -94,7 +94,7 @@ export default function RecipesPage() {
       {/* Nudge: gentle prompt toward the AI feature */}
       <Link
         href="/chat"
-        className="group mb-7 flex items-center gap-3 rounded-(--radius-card) border border-(--border-strong) bg-(--citrus-soft) px-4 py-3 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-(--shadow-sm)"
+        className="group mb-7 flex items-center gap-3 rounded-(--radius-card) border border-(--border-strong) bg-(--citrus-soft) px-4 py-3 transition-colors duration-200 hover:bg-(--citrus)/10"
       >
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-citrus/15 text-citrus">
           <SparkleIcon size={16} />

@@ -27,13 +27,11 @@ const BTN_BASE =
   "active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100";
 
 const BTN_VARIANT: Record<NonNullable<ButtonProps["variant"]>, string> = {
-  primary:
-    "bg-accent text-white shadow-(--shadow-sm) hover:bg-accent-hover hover:shadow-(--shadow-md) hover:-translate-y-0.5",
+  primary: "bg-accent text-white shadow-(--shadow-sm) hover:bg-accent-hover hover:shadow-(--shadow-md)",
   secondary:
-    "bg-surface text-foreground border border-(--border-strong) hover:bg-surface-2 hover:-translate-y-0.5 hover:shadow-(--shadow-sm)",
-  ghost: "text-muted hover:text-foreground hover:bg-black/[0.05]",
-  danger:
-    "bg-(--danger-soft) text-danger border border-(--danger)/15 hover:bg-(--danger)/10 hover:-translate-y-0.5",
+    "bg-surface text-foreground border border-(--border-strong) hover:bg-surface-2",
+  ghost: "text-muted hover:text-foreground hover:bg-black/5",
+  danger: "bg-(--danger-soft) text-danger border border-(--danger)/15 hover:bg-(--danger)/10",
 };
 
 const BTN_SIZE: Record<NonNullable<ButtonProps["size"]>, string> = {

@@ -53,7 +53,7 @@ export default function LandingPage() {
           </Link>
           <Link
             href="/register"
-            className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white shadow-(--shadow-sm) transition-all duration-200 hover:-translate-y-0.5 hover:bg-accent-hover hover:shadow-(--shadow-md)"
+            className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white shadow-(--shadow-sm) transition-colors duration-200 hover:bg-accent-hover"
           >
             Get started
           </Link>
@@ -91,7 +91,7 @@ export default function LandingPage() {
               </Link>
               <Link
                 href="/login"
-                className="w-full rounded-lg border border-(--border-strong) bg-surface/80 px-6 py-3.5 text-base font-medium text-foreground backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-surface sm:w-auto"
+                className="w-full rounded-lg border border-(--border-strong) bg-surface/80 px-6 py-3.5 text-base font-medium text-foreground backdrop-blur-sm transition-colors duration-200 hover:bg-surface sm:w-auto"
               >
                 Sign in
               </Link>
@@ -180,7 +180,7 @@ export default function LandingPage() {
             </p>
             <Link
               href="/register"
-              className="mt-7 inline-block rounded-lg bg-white px-6 py-3.5 font-medium text-accent-hover transition-transform duration-200 hover:-translate-y-0.5 hover:bg-emerald-50"
+              className="mt-7 inline-block rounded-lg bg-white px-6 py-3.5 font-medium text-accent-hover transition-colors duration-200 hover:bg-emerald-50"
             >
               Get started — it&apos;s free
             </Link>
