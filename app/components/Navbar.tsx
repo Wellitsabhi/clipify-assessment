@@ -36,8 +36,8 @@ export default function Navbar() {
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border/80 bg-surface/70 backdrop-blur-xl">
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+    <header className="sticky top-0 z-30 px-3 pt-3 sm:px-5 sm:pt-4">
+      <nav className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 rounded-2xl border border-white/40 bg-surface/60 px-3 pr-2 shadow-(--shadow-md) ring-1 ring-black/3 backdrop-blur-xl sm:px-4">
         <div className="flex items-center gap-6">
           <Link href="/recipes" className="group flex items-center gap-2.5">
             <span className="transition-transform duration-300 ease-(--ease-spring) group-hover:rotate-[-8deg] group-hover:scale-105">
@@ -103,13 +103,13 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile nav */}
-      <div className="flex items-center gap-1.5 overflow-x-auto border-t border-border px-3 py-2 md:hidden">
+      {/* Mobile nav — floating pill */}
+      <div className="mx-auto mt-2 flex max-w-5xl items-center gap-1.5 overflow-x-auto rounded-xl border border-white/40 bg-surface/60 px-2 py-1.5 shadow-(--shadow-sm) ring-1 ring-black/3 backdrop-blur-xl md:hidden">
         {LINKS.map((link) => (
           <Link
             key={link.href}
             href={link.href}
-            className={`shrink-0 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+            className={`press shrink-0 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
               isActive(link.href) ? "bg-accent-soft text-accent-hover" : "text-muted"
             }`}
           >
