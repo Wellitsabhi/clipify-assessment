@@ -23,7 +23,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const BTN_BASE =
   "group/btn inline-flex items-center justify-center gap-2 font-medium rounded-lg whitespace-nowrap " +
-  "transition-[transform,background-color,box-shadow,color] duration-200 [transition-timing-function:var(--ease-out-soft)] " +
+  "transition-[transform,background-color,box-shadow,color] duration-150 [transition-timing-function:var(--ease-out)] " +
   "active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none disabled:active:scale-100";
 
 const BTN_VARIANT: Record<NonNullable<ButtonProps["variant"]>, string> = {

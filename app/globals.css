@@ -37,9 +37,19 @@
     0 18px 50px -18px rgba(24, 36, 27, 0.24), 0 6px 16px -8px rgba(24, 36, 27, 0.1);
   --shadow-press: inset 0 1px 2px rgba(24, 36, 27, 0.12);
 
-  /* Motion language — shared easings so everything feels of-a-piece. */
-  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Motion language — Emil Kowalski's stronger curves. Built-in easings are
+     too weak; these have the punch that makes motion feel intentional. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1); /* strong ease-out (enter/exit) */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1); /* on-screen movement */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1); /* iOS drawer */
+  --ease-out-soft: var(--ease-out); /* back-compat alias */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Extra greens for a deeper, food-garden range (used on landing). */
+  --forest: #052e16; /* green-950 */
+  --pine: #14532d; /* green-900 */
+  --moss: #3f6212; /* lime-800 */
+  --mint: #d1fae5;
 }
 
 @theme inline {
@@ -123,6 +133,36 @@ h1.font-display,
     radial-gradient(50% 45% at 100% 10%, rgba(234, 140, 27, 0.12), transparent 65%),
     radial-gradient(70% 60% at 50% 110%, rgba(21, 128, 61, 0.1), transparent 70%),
     var(--background);
+}
+
+/* Dotted grid texture — subtle, for section backdrops (Emil/Aceternity feel). */
+.bg-dots {
+  background-image: radial-gradient(currentColor 1px, transparent 1px);
+  background-size: 22px 22px;
+  color: rgba(21, 128, 61, 0.1);
+}
+/* Fades the dots out toward the edges so they don't feel like wallpaper. */
+.bg-dots-fade {
+  -webkit-mask-image: radial-gradient(75% 75% at 50% 40%, #000 40%, transparent 100%);
+  mask-image: radial-gradient(75% 75% at 50% 40%, #000 40%, transparent 100%);
+}
+
+/* Deep forest panel with its own grain. */
+.bg-forest {
+  background:
+    radial-gradient(80% 60% at 20% 0%, rgba(21, 128, 61, 0.45), transparent 70%),
+    radial-gradient(70% 60% at 100% 100%, rgba(5, 46, 22, 0.6), transparent 70%),
+    var(--forest);
+}
+
+/* Press feedback — apply to any pressable that isn't a <Button>. */
+.press {
+  transition: transform 140ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .press:active {
+    transform: scale(0.97);
+  }
 }
 
 /* ---------- Motion ---------- */
