@@ -3,7 +3,8 @@
 import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { Button, Card, PageLoader, Select, Spinner } from "@/app/components/ui";
+import { Button, Card, PageLoader, Spinner } from "@/app/components/ui";
+import { GooeyDropdown } from "@/app/components/GooeyDropdown";
 import { ArrowLeftIcon, PlusIcon } from "@/app/components/icons";
 import { MealTypeAnim } from "@/app/components/AnimatedIcons";
 import { staggerContainer, staggerItem } from "@/app/components/motion";
@@ -91,31 +92,28 @@ export default function MealPlanDetailPage({
         <h2 className="text-sm font-semibold text-foreground">Add a meal</h2>
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-[1fr_1fr_2fr_auto] sm:items-end">
           <Field label="Day">
-            <Select value={day} onChange={(e) => setDay(e.target.value)}>
-              {DAYS.map((d) => (
-                <option key={d} value={d}>
-                  {cap(d)}
-                </option>
-              ))}
-            </Select>
+            <GooeyDropdown
+              ariaLabel="Day"
+              value={day}
+              onChange={setDay}
+              options={DAYS.map((d) => ({ value: d, label: cap(d) }))}
+            />
           </Field>
           <Field label="Meal">
-            <Select value={mealType} onChange={(e) => setMealType(e.target.value)}>
-              {MEAL_TYPES.map((m) => (
-                <option key={m} value={m}>
-                  {cap(m)}
-                </option>
-              ))}
-            </Select>
+            <GooeyDropdown
+              ariaLabel="Meal"
+              value={mealType}
+              onChange={setMealType}
+              options={MEAL_TYPES.map((m) => ({ value: m, label: cap(m) }))}
+            />
           </Field>
           <Field label="Recipe">
-            <Select value={recipeId} onChange={(e) => setRecipeId(e.target.value)}>
-              {recipes.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.title}
-                </option>
-              ))}
-            </Select>
+            <GooeyDropdown
+              ariaLabel="Recipe"
+              value={recipeId}
+              onChange={setRecipeId}
+              options={recipes.map((r) => ({ value: r.id, label: r.title }))}
+            />
           </Field>
           <Button onClick={handleAdd} disabled={adding || !recipeId}>
             {adding ? <Spinner /> : <><PlusIcon size={16} /> Add</>}
