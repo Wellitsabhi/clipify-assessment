@@ -58,5 +58,3 @@ public/cooking-gifs/*.gif
 .agents/
 .claude/
 skills-lock.json
-AGENTS.md
-NOTES.md
