@@ -25,6 +25,7 @@ import {
 } from "@/app/components/icons";
 import { staggerContainer, staggerItem } from "@/app/components/motion";
 import { RecipeImage } from "@/app/components/RecipeImage";
+import { TiltCard } from "@/app/components/TiltCard";
 import { api } from "@/app/lib/api";
 import { useUser } from "@/app/lib/useUser";
 import type { Recipe } from "@/app/lib/types";
@@ -182,8 +183,9 @@ function RecipeCard({
 }) {
   const tags = (recipe.dietaryTags ?? "").split(",").map((t) => t.trim()).filter(Boolean);
   return (
-    <motion.div variants={staggerItem}>
-      <Card className="group flex h-full flex-col overflow-hidden transition-all duration-300 ease-(--ease-out-soft) hover:-translate-y-1 hover:border-(--border-strong) hover:shadow-(--shadow-lg)">
+    <motion.div variants={staggerItem} className="h-full">
+      <TiltCard className="group h-full">
+        <Card className="flex h-full flex-col overflow-hidden transition-[border-color,box-shadow] duration-300 group-hover:border-(--border-strong) group-hover:shadow-(--shadow-lg)">
         <Link href={`/recipes/${recipe.id}`} className="relative block overflow-hidden">
           <RecipeImage
             src={recipe.imageUrl}
@@ -243,7 +245,8 @@ function RecipeCard({
             )}
           </div>
         </div>
-      </Card>
+        </Card>
+      </TiltCard>
     </motion.div>
   );
 }

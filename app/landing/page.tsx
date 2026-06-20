@@ -5,7 +5,14 @@ import { motion } from "motion/react";
 import ChefLogo from "@/app/components/ChefLogo";
 import { ShaderBackground } from "@/app/components/ShaderBackground";
 import { SparkleIcon } from "@/app/components/icons";
+import { CountUp } from "@/app/components/CountUp";
 import { FadeIn, staggerContainer, staggerItem } from "@/app/components/motion";
+
+const STATS = [
+  { value: 20, suffix: "+", label: "Recipes to start" },
+  { value: 12, suffix: "", label: "World cuisines" },
+  { value: 3, suffix: "×", label: "Meals a day, planned" },
+];
 
 const FEATURES = [
   {
@@ -90,6 +97,20 @@ export default function LandingPage() {
               </Link>
             </div>
           </FadeIn>
+        </div>
+      </section>
+
+      {/* Stats strip with count-up */}
+      <section className="border-y border-border bg-surface">
+        <div className="mx-auto grid max-w-4xl grid-cols-3 divide-x divide-border px-6">
+          {STATS.map((s) => (
+            <div key={s.label} className="px-4 py-10 text-center">
+              <div className="font-display text-4xl font-semibold text-accent sm:text-5xl">
+                <CountUp value={s.value} suffix={s.suffix} />
+              </div>
+              <p className="mt-2 text-sm text-muted">{s.label}</p>
+            </div>
+          ))}
         </div>
       </section>
 
