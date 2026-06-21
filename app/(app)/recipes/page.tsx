@@ -22,11 +22,12 @@ import {
   TrashIcon,
   UsersIcon,
 } from "@/app/components/icons";
-import { IdeaIcon } from "@/app/components/AnimatedIcons";
+import { Plus, Sparkles, ArrowRight } from "lucide-react";
 import { EASE_OUT, staggerContainer, staggerItem } from "@/app/components/motion";
 import { RecipeImage } from "@/app/components/RecipeImage";
 import { TiltCard } from "@/app/components/TiltCard";
 import { RotatingText } from "@/app/components/RotatingText";
+import { FunkyButton } from "@/app/components/FunkyButton";
 import { useConfirm } from "@/app/components/ConfirmProvider";
 import { toast } from "sonner";
 import { api } from "@/app/lib/api";
@@ -129,9 +130,9 @@ export default function RecipesPage() {
             Browse your catalog and grow it with Chef Ferraro.
           </p>
         </div>
-        <Button onClick={() => setShowCreate(true)}>
-          <PlusIcon size={16} /> New recipe
-        </Button>
+        <FunkyButton onClick={() => setShowCreate(true)}>
+          <Plus size={16} strokeWidth={2.5} /> New recipe
+        </FunkyButton>
       </div>
 
       {/* Search + compact rotating nudge share one row */}
@@ -148,18 +149,15 @@ export default function RecipesPage() {
             className="pl-9"
           />
         </div>
-        <Link
-          href="/chat"
-          className="press group flex shrink-0 items-center gap-2.5 rounded-xl border border-(--border-strong) bg-(--citrus-soft) px-3.5 py-2.5 transition-colors duration-200 hover:bg-(--citrus)/10"
-        >
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-citrus/12 text-citrus">
-            <IdeaIcon size={15} />
-          </span>
-          <RotatingText texts={NUDGE_PHRASES} className="text-sm font-medium text-foreground" />
-          <span className="text-citrus transition-transform duration-200 ease-(--ease-out) group-hover:translate-x-0.5">
-            →
-          </span>
-        </Link>
+        <FunkyButton as={Link} href="/chat" tone="citrus" className="shrink-0">
+          <Sparkles size={16} strokeWidth={2.5} className="shrink-0" />
+          <RotatingText texts={NUDGE_PHRASES} className="font-semibold" />
+          <ArrowRight
+            size={16}
+            strokeWidth={2.5}
+            className="shrink-0 transition-transform duration-200 ease-(--ease-out) group-hover/fk:translate-x-0.5"
+          />
+        </FunkyButton>
       </div>
 
       {error && <p className="mb-6 text-sm text-danger">{error}</p>}

@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { Button, Card, CardListSkeleton, EmptyState, Input, Label, Spinner } from "@/app/components/ui";
+import { Button, Card, CardListSkeleton, Input, Label, Spinner } from "@/app/components/ui";
 import { Modal } from "@/app/(app)/recipes/page";
-import { PlusIcon } from "@/app/components/icons";
+import { FunkyButton } from "@/app/components/FunkyButton";
+import { CalendarPlus, Plus, ArrowRight } from "lucide-react";
 import { staggerContainer, staggerItem } from "@/app/components/motion";
 import { api } from "@/app/lib/api";
 import type { MealPlan } from "@/app/lib/types";
@@ -43,24 +44,15 @@ export default function MealPlansPage() {
           </h1>
           <p className="mt-1.5 text-sm text-muted">Organize your week, one meal at a time.</p>
         </div>
-        <Button onClick={() => setShowCreate(true)}>
-          <PlusIcon size={16} /> New plan
-        </Button>
+        <FunkyButton onClick={() => setShowCreate(true)}>
+          <Plus size={16} strokeWidth={2.5} /> New plan
+        </FunkyButton>
       </div>
 
       {plans === null ? (
         <CardListSkeleton />
       ) : plans.length === 0 ? (
-        <EmptyState
-          icon="🗓️"
-          title="No meal plans yet"
-          description="Create a weekly plan and fill it with recipes from your catalog."
-          action={
-            <Button onClick={() => setShowCreate(true)}>
-              <PlusIcon size={16} /> New plan
-            </Button>
-          }
-        />
+        <MealPlansEmpty onCreate={() => setShowCreate(true)} />
       ) : (
         <motion.div
           variants={staggerContainer}
@@ -76,9 +68,10 @@ export default function MealPlansPage() {
                     <h2 className="text-lg font-medium text-foreground transition-colors group-hover:text-accent-hover">
                       {plan.name}
                     </h2>
-                    <span className="text-subtle opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100">
-                      →
-                    </span>
+                    <ArrowRight
+                      size={16}
+                      className="text-subtle opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100"
+                    />
                   </div>
                   <p className="mt-1 text-sm text-muted">
                     {formatRange(plan.startDate, plan.endDate)}
@@ -110,6 +103,48 @@ export default function MealPlansPage() {
           }}
         />
       )}
+    </div>
+  );
+}
+
+const WEEK = ["M", "T", "W", "T", "F", "S", "S"];
+
+function MealPlansEmpty({ onCreate }: { onCreate: () => void }) {
+  return (
+    <div className="relative overflow-hidden rounded-3xl border border-border bg-surface px-6 py-16 text-center">
+      <div className="bg-dots bg-dots-fade pointer-events-none absolute inset-0 opacity-50" aria-hidden />
+      <div className="relative z-10 mx-auto max-w-sm">
+        {/* Mini week-grid illustration */}
+        <div className="mx-auto mb-6 flex w-fit items-end gap-1.5">
+          {WEEK.map((d, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05, ease: [0.23, 1, 0.32, 1] }}
+              className="flex flex-col items-center gap-1"
+            >
+              <span
+                className={`block w-7 rounded-md ${
+                  i === 3 ? "h-12 bg-accent" : "h-9 bg-accent/15"
+                }`}
+              />
+              <span className="text-[10px] font-medium text-subtle">{d}</span>
+            </motion.div>
+          ))}
+        </div>
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft text-accent">
+          <CalendarPlus size={22} strokeWidth={2} />
+        </div>
+        <h3 className="font-display text-2xl font-semibold text-foreground">Plan your first week</h3>
+        <p className="mx-auto mt-2 max-w-xs text-sm text-muted">
+          Pick a week, drop in recipes from your catalog, and never wonder what&apos;s for dinner again.
+        </p>
+        <FunkyButton onClick={onCreate} className="mt-6">
+          <Plus size={16} strokeWidth={2.5} /> Create a meal plan
+          <ArrowRight size={16} strokeWidth={2.5} className="transition-transform group-hover/fk:translate-x-0.5" />
+        </FunkyButton>
+      </div>
     </div>
   );
 }

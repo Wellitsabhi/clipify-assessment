@@ -14,7 +14,6 @@ const LINKS = [
   { href: "/recipes", label: "Recipes" },
   { href: "/chat", label: "Chef Ferraro" },
   { href: "/meal-plans", label: "Meal Plans" },
-  { href: "/settings", label: "Settings" },
 ];
 
 export default function Navbar() {
