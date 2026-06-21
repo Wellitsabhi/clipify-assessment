@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Badge, Button, Card, Skeleton, Spinner } from "@/app/components/ui";
+import { Button, Card, Skeleton, Spinner } from "@/app/components/ui";
 import { CheckIcon } from "@/app/components/icons";
+import { Aurora } from "@/app/components/Aurora";
+import { StarBorder } from "@/app/components/StarBorder";
 import { useConfirm } from "@/app/components/ConfirmProvider";
 import { api } from "@/app/lib/api";
 import { useUser } from "@/app/lib/useUser";
@@ -89,46 +91,63 @@ export default function SettingsPage() {
         </dl>
       </Card>
 
-      {/* Subscription */}
-      <Card className="mt-6 overflow-hidden">
-        <div className="flex items-center justify-between border-b border-border p-6">
-          <div>
-            <h2 className="text-sm font-semibold text-foreground">Subscription</h2>
-            <p className="mt-1 text-sm text-muted">
-              {isPro ? "You're on the Pro plan." : "You're on the Free plan."}
-            </p>
-          </div>
-          <Badge tone={isPro ? "accent" : "neutral"}>{isPro ? "Pro" : "Free"}</Badge>
-        </div>
-
-        <div className="p-6">
-          {isPro ? (
-            <Button variant="secondary" onClick={handleCancel} disabled={working}>
-              {working ? <Spinner /> : "Cancel subscription"}
-            </Button>
-          ) : (
+      {/* Subscription — bold dark-green panel */}
+      <div className="bg-forest relative mt-6 overflow-hidden rounded-(--radius-card) text-white shadow-(--shadow-lg)">
+        <Aurora className="opacity-40" colors={["#34d399", "#15803d", "#86efac"]} />
+        <div className="bg-dots bg-dots-fade pointer-events-none absolute inset-0 opacity-20 text-[rgba(255,255,255,0.4)]" aria-hidden />
+        <div className="relative z-10 p-7">
+          <div className="flex items-center justify-between">
             <div>
+              <h2 className="font-display text-xl font-semibold">
+                {isPro ? "MealPlan Pro" : "Upgrade to Pro"}
+              </h2>
+              <p className="mt-1 text-sm text-emerald-100/80">
+                {isPro ? "You're on the Pro plan." : "Everything you need to cook smarter."}
+              </p>
+            </div>
+            <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur">
+              {isPro ? "Pro" : "Free"}
+            </span>
+          </div>
+
+          {isPro ? (
+            <button
+              onClick={handleCancel}
+              disabled={working}
+              className="press mt-6 inline-flex items-center justify-center rounded-lg border border-white/25 bg-white/10 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/15 disabled:opacity-50"
+            >
+              {working ? <Spinner /> : "Cancel subscription"}
+            </button>
+          ) : (
+            <div className="mt-5">
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-semibold text-foreground">{PRO_PRICE}</span>
-                <span className="text-sm text-muted">billed monthly · cancel anytime</span>
+                <span className="font-display text-3xl font-semibold">{PRO_PRICE}</span>
+                <span className="text-sm text-emerald-100/70">billed monthly · cancel anytime</span>
               </div>
-              <ul className="mt-4 space-y-2.5">
+              <ul className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                 {PRO_FEATURES.map((f) => (
-                  <li key={f} className="flex items-center gap-2.5 text-sm text-foreground">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent-soft text-accent">
+                  <li key={f} className="flex items-center gap-2.5 text-sm text-emerald-50">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/15 text-(--accent-ring)">
                       <CheckIcon size={13} />
                     </span>
                     {f}
                   </li>
                 ))}
               </ul>
-              <Button className="mt-6" onClick={handleUpgrade} disabled={working}>
+              <StarBorder
+                as="button"
+                onClick={handleUpgrade}
+                disabled={working}
+                color="#86efac"
+                className="press mt-6"
+                innerClassName="bg-white text-accent-hover font-semibold text-sm px-6 py-3"
+              >
                 {working ? <Spinner /> : "Upgrade to Pro"}
-              </Button>
+              </StarBorder>
             </div>
           )}
         </div>
-      </Card>
+      </div>
 
       {/* Danger zone — neutral styling, no alarmist red text */}
       <Card className="mt-6 p-6">

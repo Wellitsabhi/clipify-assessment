@@ -584,21 +584,20 @@ function ExpandedRecipe({
             onClick={close}
           />
           <motion.div
-            className="relative z-10 my-auto w-full max-w-2xl"
-            initial={{ opacity: 0, scale: 0.94, y: 16, filter: "blur(8px)" }}
+            className="relative z-10 my-auto w-full max-w-2xl will-change-transform"
+            initial={{ opacity: 0, scale: 0.92, y: 14, filter: "blur(10px)" }}
             animate={{
               opacity: 1,
               scale: 1,
               y: 0,
               filter: "blur(0px)",
-              transition: { duration: 0.34, ease: EASE_OUT },
+              transition: { duration: 0.38, ease: EASE_OUT },
             }}
             exit={{
               opacity: 0,
-              scale: 0.96,
-              y: 12,
-              filter: "blur(6px)",
-              transition: { duration: 0.2, ease: EASE_OUT },
+              scale: 0.97,
+              filter: "blur(8px)",
+              transition: { duration: 0.22, ease: [0.4, 0, 1, 1] },
             }}
           >
             <Card className="overflow-hidden shadow-(--shadow-lg)">
