@@ -170,6 +170,162 @@ h1.font-display,
   mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent);
 }
 
+/* ---------- GooeyNav (reactbits, adapted) ---------- */
+.gooey-nav {
+  --color-1: var(--accent);
+  --color-2: var(--accent-hover);
+  --color-3: #34d399;
+  --color-4: var(--citrus);
+  position: relative;
+}
+.gooey-nav nav ul {
+  display: flex;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  z-index: 3;
+}
+.gooey-nav nav ul li {
+  position: relative;
+  border-radius: 100vw;
+  cursor: pointer;
+  color: var(--muted);
+  transition: color 0.3s ease;
+}
+.gooey-nav nav ul li a {
+  display: inline-block;
+  padding: 0.45em 0.95em;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.gooey-nav nav ul li::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 100vw;
+  background: var(--accent);
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.3s ease;
+  z-index: -1;
+}
+.gooey-nav nav ul li.active {
+  color: #fff;
+}
+.gooey-nav nav ul li.active::after {
+  opacity: 1;
+  transform: scale(1);
+}
+.gooey-nav .effect {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+  z-index: 1;
+}
+.gooey-nav .effect.text {
+  color: #fff;
+  transition: color 0.3s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.gooey-nav .effect.filter {
+  filter: blur(7px) contrast(100) blur(0);
+  mix-blend-mode: lighten;
+}
+.gooey-nav .effect.filter::before {
+  content: "";
+  position: absolute;
+  inset: -75px;
+  z-index: -2;
+  background: transparent;
+}
+.gooey-nav .effect.filter::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: scale(0);
+  opacity: 0;
+  z-index: -1;
+  border-radius: 100vw;
+}
+.gooey-nav .effect.active::after {
+  animation: gnav-pill 0.3s ease both;
+}
+@keyframes gnav-pill {
+  to { transform: scale(1); opacity: 1; }
+}
+.gooey-nav .particle,
+.gooey-nav .point {
+  display: block;
+  opacity: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 100%;
+  transform-origin: center;
+}
+.gooey-nav .particle {
+  --time: 5s;
+  position: absolute;
+  top: calc(50% - 8px);
+  left: calc(50% - 8px);
+  animation: gnav-particle calc(var(--time)) ease 1 -350ms;
+}
+.gooey-nav .point {
+  background: var(--color);
+  opacity: 1;
+  animation: gnav-point calc(var(--time)) ease 1 -350ms;
+}
+@keyframes gnav-particle {
+  0% { transform: rotate(0deg) translate(var(--start-x), var(--start-y)); opacity: 1; animation-timing-function: cubic-bezier(0.55,0,1,0.45); }
+  70% { transform: rotate(calc(var(--rotate)*0.5)) translate(calc(var(--end-x)*1.2), calc(var(--end-y)*1.2)); opacity: 1; animation-timing-function: ease; }
+  85% { transform: rotate(calc(var(--rotate)*0.66)) translate(var(--end-x), var(--end-y)); opacity: 1; }
+  100% { transform: rotate(calc(var(--rotate)*1.2)) translate(calc(var(--end-x)*0.5), calc(var(--end-y)*0.5)); opacity: 1; }
+}
+@keyframes gnav-point {
+  0% { transform: scale(0); opacity: 0; animation-timing-function: cubic-bezier(0.55,0,1,0.45); }
+  25% { transform: scale(calc(var(--scale)*0.25)); }
+  38% { opacity: 1; }
+  65% { transform: scale(var(--scale)); opacity: 1; animation-timing-function: ease; }
+  85% { transform: scale(var(--scale)); opacity: 1; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+/* ---------- StarBorder (reactbits, adapted) ---------- */
+.star-border {
+  display: inline-block;
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  padding: 1px 0;
+}
+.star-border .sb-bottom,
+.star-border .sb-top {
+  position: absolute;
+  width: 300%;
+  height: 50%;
+  opacity: 0.7;
+  border-radius: 50%;
+  z-index: 0;
+}
+.star-border .sb-bottom { bottom: -11px; right: -250%; animation: sb-bottom linear infinite alternate; }
+.star-border .sb-top { top: -11px; left: -250%; animation: sb-top linear infinite alternate; }
+.star-border .sb-inner {
+  position: relative;
+  z-index: 1;
+  border-radius: 13px;
+}
+@keyframes sb-bottom { 0% { transform: translate(0,0); opacity: 1; } 100% { transform: translate(-100%,0); opacity: 0; } }
+@keyframes sb-top { 0% { transform: translate(0,0); opacity: 1; } 100% { transform: translate(100%,0); opacity: 0; } }
+
 /* Press feedback — apply to any pressable that isn't a <Button>. */
 .press {
   transition: transform 140ms var(--ease-out);
