@@ -125,13 +125,18 @@ export function Label({ children, htmlFor }: { children: ReactNode; htmlFor?: st
 /* Card / Badge / misc                                                        */
 /* -------------------------------------------------------------------------- */
 
-export function Card({ children, className }: { children: ReactNode; className?: string }) {
+export function Card({
+  children,
+  className,
+  ...rest
+}: { children: ReactNode; className?: string } & React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cx(
         "rounded-(--radius-card) border border-border bg-surface shadow-(--shadow-sm)",
         className
       )}
+      {...rest}
     >
       {children}
     </div>

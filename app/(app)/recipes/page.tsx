@@ -24,19 +24,29 @@ import {
 } from "@/app/components/icons";
 import { IdeaIcon } from "@/app/components/AnimatedIcons";
 import { EASE_OUT, staggerContainer, staggerItem } from "@/app/components/motion";
+import { RecipeImage } from "@/app/components/RecipeImage";
+import { TiltCard } from "@/app/components/TiltCard";
+import { RotatingText } from "@/app/components/RotatingText";
+import { useConfirm } from "@/app/components/ConfirmProvider";
+import { toast } from "sonner";
+import { api } from "@/app/lib/api";
+import { useUser } from "@/app/lib/useUser";
+import type { Recipe } from "@/app/lib/types";
 
 // Body reveal for the expanded overlay (stagger children in).
 const revealItem = {
   hidden: { opacity: 0, y: 10 },
   show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: EASE_OUT } },
 };
-import { RecipeImage } from "@/app/components/RecipeImage";
-import { TiltCard } from "@/app/components/TiltCard";
-import { useConfirm } from "@/app/components/ConfirmProvider";
-import { toast } from "sonner";
-import { api } from "@/app/lib/api";
-import { useUser } from "@/app/lib/useUser";
-import type { Recipe } from "@/app/lib/types";
+
+// Punky cycling phrases for the AI nudge (Zomato-notification style).
+const NUDGE_PHRASES = [
+  "Out of ideas?",
+  "Hungry but blank?",
+  "Fridge looking sad?",
+  "Craving something?",
+  "Can't decide?",
+];
 
 export default function RecipesPage() {
   const { user } = useUser();
@@ -124,34 +134,32 @@ export default function RecipesPage() {
         </Button>
       </div>
 
-      {/* Nudge: gentle prompt toward the AI feature */}
-      <Link
-        href="/chat"
-        className="group mb-7 flex items-center gap-3 rounded-(--radius-card) border border-(--border-strong) bg-(--citrus-soft) px-4 py-3 transition-colors duration-200 hover:bg-(--citrus)/10"
-      >
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-citrus/12 text-citrus">
-          <IdeaIcon size={17} />
-        </span>
-        <span className="flex-1 text-sm text-foreground">
-          <span className="font-medium">Out of ideas?</span>{" "}
-          <span className="text-muted">Ask Chef Ferraro to invent a recipe for you.</span>
-        </span>
-        <span className="text-citrus transition-transform duration-200 ease-(--ease-out) group-hover:translate-x-0.5">
-          →
-        </span>
-      </Link>
-
-      <div className="relative mb-8 max-w-md">
-        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-subtle">
-          <SearchIcon size={16} />
-        </span>
-        <Input
-          placeholder="Search by name, cuisine, or dietary tag…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          aria-label="Search recipes"
-          className="pl-9"
-        />
+      {/* Search + compact rotating nudge share one row */}
+      <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-subtle">
+            <SearchIcon size={16} />
+          </span>
+          <Input
+            placeholder="Search by name, cuisine, or dietary tag…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            aria-label="Search recipes"
+            className="pl-9"
+          />
+        </div>
+        <Link
+          href="/chat"
+          className="press group flex shrink-0 items-center gap-2.5 rounded-xl border border-(--border-strong) bg-(--citrus-soft) px-3.5 py-2.5 transition-colors duration-200 hover:bg-(--citrus)/10"
+        >
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-citrus/12 text-citrus">
+            <IdeaIcon size={15} />
+          </span>
+          <RotatingText texts={NUDGE_PHRASES} className="text-sm font-medium text-foreground" />
+          <span className="text-citrus transition-transform duration-200 ease-(--ease-out) group-hover:translate-x-0.5">
+            →
+          </span>
+        </Link>
       </div>
 
       {error && <p className="mb-6 text-sm text-danger">{error}</p>}
@@ -275,74 +283,85 @@ function RecipeCard({
   return (
     <motion.div variants={staggerItem} className="h-full">
       <TiltCard className="group h-full">
-        <Card className="flex h-full flex-col overflow-hidden transition-[border-color,box-shadow] duration-300 group-hover:border-(--border-strong) group-hover:shadow-(--shadow-lg)">
-        <button
+        {/* Whole card is clickable; delete button stops propagation. */}
+        <Card
           onClick={onExpand}
-          className="relative block w-full overflow-hidden text-left"
+          role="button"
+          tabIndex={0}
           aria-label={`Open ${recipe.title}`}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              onExpand();
+            }
+          }}
+          className="flex h-full cursor-pointer flex-col overflow-hidden transition-[border-color,box-shadow] duration-300 group-hover:border-(--border-strong) group-hover:shadow-(--shadow-lg)"
         >
-          <RecipeImage
-            src={recipe.imageUrl}
-            title={recipe.title}
-            className="h-44 w-full object-cover transition-transform duration-500 ease-(--ease-out-soft) group-hover:scale-[1.06]"
-          />
-          <div className="absolute inset-0 bg-linear-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-          {recipe.cuisine && (
-            <span className="absolute left-3 top-3 rounded-full bg-surface/90 px-2.5 py-0.5 text-xs font-medium text-foreground backdrop-blur-sm">
-              {recipe.cuisine}
-            </span>
-          )}
-        </button>
-        <div className="flex flex-1 flex-col p-5">
-          <button onClick={onExpand} className="text-left">
+          <div className="relative overflow-hidden">
+            <RecipeImage
+              src={recipe.imageUrl}
+              title={recipe.title}
+              className="h-44 w-full object-cover transition-transform duration-500 ease-(--ease-out-soft) group-hover:scale-[1.06]"
+            />
+            <div className="absolute inset-0 bg-linear-to-t from-black/25 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            {recipe.cuisine && (
+              <span className="absolute left-3 top-3 rounded-full bg-surface/90 px-2.5 py-0.5 text-xs font-medium text-foreground backdrop-blur-sm">
+                {recipe.cuisine}
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-1 flex-col p-5">
             <h3 className="font-medium leading-snug text-foreground transition-colors group-hover:text-accent-hover">
               {recipe.title}
             </h3>
-          </button>
-          <p className="mt-1 line-clamp-2 text-sm text-muted">{recipe.description}</p>
+            {/* Reserve 2 lines so cards with short/long descriptions align. */}
+            <p className="mt-1 line-clamp-2 min-h-10 text-sm text-muted">
+              {recipe.description}
+            </p>
 
-          {tags.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-1.5">
+            {/* Tags row: always reserve its height so footers line up. */}
+            <div className="mt-3 flex min-h-6 flex-wrap gap-1.5">
               {tags.map((tag) => (
                 <Badge key={tag} tone="accent">
                   {tag}
                 </Badge>
               ))}
             </div>
-          )}
 
-          <div className="mt-4 flex items-center gap-3.5 text-xs text-subtle">
-            <span className="inline-flex items-center gap-1">
-              <ClockIcon size={13} /> {recipe.prepTime + recipe.cookTime}m
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <UsersIcon size={13} /> {recipe.servings}
-            </span>
-            {recipe.calories != null && (
+            <div className="mt-3 flex items-center gap-3.5 text-xs text-subtle">
               <span className="inline-flex items-center gap-1">
-                <FlameIcon size={13} /> {recipe.calories}
+                <ClockIcon size={13} /> {recipe.prepTime + recipe.cookTime}m
               </span>
-            )}
-          </div>
+              <span className="inline-flex items-center gap-1">
+                <UsersIcon size={13} /> {recipe.servings}
+              </span>
+              {recipe.calories != null && (
+                <span className="inline-flex items-center gap-1">
+                  <FlameIcon size={13} /> {recipe.calories}
+                </span>
+              )}
+            </div>
 
-          <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
-            <button
-              onClick={onExpand}
-              className="text-sm font-medium text-accent-hover transition-transform duration-200 hover:translate-x-0.5"
-            >
-              View recipe →
-            </button>
-            {canDelete && (
-              <button
-                aria-label="Delete recipe"
-                onClick={() => onDelete(recipe.id)}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-subtle transition-colors hover:bg-black/5 hover:text-foreground"
-              >
-                <TrashIcon size={16} />
-              </button>
-            )}
+            {/* mt-auto pins the footer to the bottom → "View recipe" aligns. */}
+            <div className="mt-auto flex items-center justify-between border-t border-border pt-4">
+              <span className="text-sm font-medium text-accent-hover transition-transform duration-200 group-hover:translate-x-0.5">
+                View recipe →
+              </span>
+              {canDelete && (
+                <button
+                  aria-label="Delete recipe"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(recipe.id);
+                  }}
+                  className="press inline-flex h-9 w-9 items-center justify-center rounded-lg text-subtle transition-colors hover:bg-black/5 hover:text-foreground"
+                >
+                  <TrashIcon size={16} />
+                </button>
+              )}
+            </div>
           </div>
-        </div>
         </Card>
       </TiltCard>
     </motion.div>
