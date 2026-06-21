@@ -147,6 +147,14 @@ h1.font-display,
   mask-image: radial-gradient(75% 75% at 50% 40%, #000 40%, transparent 100%);
 }
 
+/* Near-black ink panel with a faint green glow (for the Pro upsell). */
+.bg-ink {
+  background:
+    radial-gradient(90% 70% at 15% 0%, rgba(21, 128, 61, 0.4), transparent 60%),
+    radial-gradient(70% 60% at 100% 100%, rgba(5, 46, 22, 0.5), transparent 60%),
+    linear-gradient(160deg, #14181a 0%, #0a0c0d 60%, #06231a 100%);
+}
+
 /* Deep forest panel with its own grain. */
 .bg-forest {
   background:

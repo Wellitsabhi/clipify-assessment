@@ -92,7 +92,7 @@ export function GooeyDropdown({
           >
             <motion.ul
               role="listbox"
-              className="max-h-64 overflow-auto rounded-xl bg-accent p-1.5 shadow-(--shadow-lg)"
+              className="no-scrollbar max-h-64 overflow-auto rounded-xl bg-accent p-1.5 shadow-(--shadow-lg)"
               initial="closed"
               animate="open"
               exit="closed"

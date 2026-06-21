@@ -4,8 +4,10 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button, Card, Skeleton, Spinner } from "@/app/components/ui";
 import { CheckIcon } from "@/app/components/icons";
+import { Sparkles } from "lucide-react";
 import { Aurora } from "@/app/components/Aurora";
 import { StarBorder } from "@/app/components/StarBorder";
+import { DitherAvatar } from "@/app/components/DitherAvatar";
 import { useConfirm } from "@/app/components/ConfirmProvider";
 import { api } from "@/app/lib/api";
 import { useUser } from "@/app/lib/useUser";
@@ -71,64 +73,67 @@ export default function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-      <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground">Settings</h1>
-      <p className="mt-1.5 text-sm text-muted">Manage your account and subscription.</p>
+      <h1 className="font-display text-4xl font-semibold tracking-tight text-foreground">Settings</h1>
+      <p className="mt-1.5 text-muted">Manage your account and subscription.</p>
 
       {error && <p className="mt-6 text-sm text-danger">{error}</p>}
 
       {/* Profile */}
       <Card className="mt-8 p-6">
-        <h2 className="text-sm font-semibold text-foreground">Profile</h2>
-        <dl className="mt-4 space-y-3 text-sm">
-          <div className="flex justify-between">
-            <dt className="text-muted">Name</dt>
-            <dd className="font-medium text-foreground">{user.name}</dd>
+        <div className="flex items-center gap-4">
+          <DitherAvatar name={user.name || user.email} size={52} />
+          <div className="min-w-0">
+            <p className="truncate font-display text-lg font-semibold text-foreground">{user.name}</p>
+            <p className="truncate text-sm text-muted">{user.email}</p>
           </div>
-          <div className="flex justify-between">
-            <dt className="text-muted">Email</dt>
-            <dd className="font-medium text-foreground">{user.email}</dd>
-          </div>
-        </dl>
+          <span
+            className={`ml-auto rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+              isPro ? "bg-accent-soft text-accent-hover" : "bg-stone-100 text-stone-600"
+            }`}
+          >
+            {isPro ? "Pro" : "Free"}
+          </span>
+        </div>
       </Card>
 
-      {/* Subscription — bold dark-green panel */}
-      <div className="bg-forest relative mt-6 overflow-hidden rounded-(--radius-card) text-white shadow-(--shadow-lg)">
-        <Aurora className="opacity-40" colors={["#34d399", "#15803d", "#86efac"]} />
-        <div className="bg-dots bg-dots-fade pointer-events-none absolute inset-0 opacity-20 text-[rgba(255,255,255,0.4)]" aria-hidden />
-        <div className="relative z-10 p-7">
-          <div className="flex items-center justify-between">
+      {/* Subscription — blackish ink panel */}
+      <div className="bg-ink relative mt-6 overflow-hidden rounded-2xl text-white shadow-(--shadow-lg)">
+        <Aurora className="opacity-25" colors={["#34d399", "#15803d", "#0a3a23"]} />
+        <div className="bg-dots bg-dots-fade pointer-events-none absolute inset-0 opacity-15 text-[rgba(255,255,255,0.35)]" aria-hidden />
+        <div className="relative z-10 p-8">
+          <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="font-display text-xl font-semibold">
-                {isPro ? "MealPlan Pro" : "Upgrade to Pro"}
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-(--accent-ring)">
+                <Sparkles size={12} strokeWidth={2.5} /> {isPro ? "Active" : "Premium"}
+              </span>
+              <h2 className="mt-3 font-display text-2xl font-semibold">
+                {isPro ? "You're on MealPlan Pro" : "Upgrade to Pro"}
               </h2>
-              <p className="mt-1 text-sm text-emerald-100/80">
-                {isPro ? "You're on the Pro plan." : "Everything you need to cook smarter."}
+              <p className="mt-1 text-sm text-white/60">
+                {isPro ? "Thanks for cooking with us." : "Everything you need to cook smarter."}
               </p>
             </div>
-            <span className="rounded-full bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur">
-              {isPro ? "Pro" : "Free"}
-            </span>
           </div>
 
           {isPro ? (
             <button
               onClick={handleCancel}
               disabled={working}
-              className="press mt-6 inline-flex items-center justify-center rounded-lg border border-white/25 bg-white/10 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/15 disabled:opacity-50"
+              className="press mt-6 inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/15 disabled:opacity-50"
             >
               {working ? <Spinner /> : "Cancel subscription"}
             </button>
           ) : (
-            <div className="mt-5">
+            <div className="mt-6">
               <div className="flex items-baseline gap-2">
-                <span className="font-display text-3xl font-semibold">{PRO_PRICE}</span>
-                <span className="text-sm text-emerald-100/70">billed monthly · cancel anytime</span>
+                <span className="font-display text-4xl font-semibold">{PRO_PRICE}</span>
+                <span className="text-sm text-white/50">billed monthly · cancel anytime</span>
               </div>
-              <ul className="mt-5 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+              <ul className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {PRO_FEATURES.map((f) => (
-                  <li key={f} className="flex items-center gap-2.5 text-sm text-emerald-50">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/15 text-(--accent-ring)">
-                      <CheckIcon size={13} />
+                  <li key={f} className="flex items-center gap-2.5 text-sm text-white/85">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-white">
+                      <CheckIcon size={12} />
                     </span>
                     {f}
                   </li>
@@ -139,8 +144,9 @@ export default function SettingsPage() {
                 onClick={handleUpgrade}
                 disabled={working}
                 color="#86efac"
-                className="press mt-6"
-                innerClassName="bg-white text-accent-hover font-semibold text-sm px-6 py-3"
+                speed="4s"
+                className="press mt-7"
+                innerClassName="bg-white text-[#0a0c0d] font-semibold text-sm px-7 py-3.5"
               >
                 {working ? <Spinner /> : "Upgrade to Pro"}
               </StarBorder>
@@ -149,7 +155,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Danger zone — neutral styling, no alarmist red text */}
+      {/* Danger zone */}
       <Card className="mt-6 p-6">
         <h2 className="text-sm font-semibold text-foreground">Danger zone</h2>
         <p className="mt-1 text-sm text-muted">

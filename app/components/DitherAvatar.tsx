@@ -42,7 +42,12 @@ export function DitherAvatar({ name, size = 32 }: { name: string; size?: number 
         }}
         aria-hidden
       />
-      <span className="relative text-[11px] font-semibold text-white drop-shadow-sm">{initials}</span>
+      <span
+        className="relative font-semibold text-white drop-shadow-sm"
+        style={{ fontSize: Math.max(10, size * 0.36) }}
+      >
+        {initials}
+      </span>
     </span>
   );
 }
