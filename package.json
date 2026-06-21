@@ -18,10 +18,9 @@
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.0",
     "jsonwebtoken": "^9.0.3",
-    "lottie-react": "^2.4.1",
     "lucide-react": "^1.21.0",
     "motion": "^12.40.0",
-    "next": "16.2.2",
+    "next": "^16.2.9",
     "ogl": "^1.0.11",
     "openai": "^6.33.0",
     "prisma": "^6.19.3",
@@ -40,9 +39,15 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.2",
+    "eslint-config-next": "^16.2.9",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5"
+  },
+  "overrides": {
+    "ws": "^8.18.3",
+    "protobufjs": "^7.5.5",
+    "postcss": "^8.5.10",
+    "esbuild": "^0.25.0"
   }
 }

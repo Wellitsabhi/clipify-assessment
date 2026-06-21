@@ -65,7 +65,8 @@ export function Aurora({
 
     let renderer: Renderer;
     try {
-      renderer = new Renderer({ alpha: true, antialias: true, dpr: Math.min(2, devicePixelRatio) });
+      // Cap DPR at 1.5 — the aurora is a soft blur, so full retina is wasted GPU.
+      renderer = new Renderer({ alpha: true, antialias: true, dpr: Math.min(1.5, devicePixelRatio) });
     } catch {
       return; // no WebGL → CSS fallback stays
     }
@@ -99,17 +100,47 @@ export function Aurora({
     ro.observe(el);
 
     let raf = 0;
+    let running = false;
+    let visible = true;
+    let onScreen = true;
     const start = performance.now();
+
     function loop(now: number) {
       program.uniforms.uTime.value = (now - start) / 1000;
       renderer.render({ scene: mesh });
       raf = requestAnimationFrame(loop);
     }
-    raf = requestAnimationFrame(loop);
+    function play() {
+      if (running || !visible || !onScreen) return;
+      running = true;
+      raf = requestAnimationFrame(loop);
+    }
+    function pause() {
+      running = false;
+      cancelAnimationFrame(raf);
+    }
+
+    // Pause when scrolled off-screen or the tab is hidden (saves GPU/battery).
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        onScreen = entry.isIntersecting;
+        onScreen ? play() : pause();
+      },
+      { threshold: 0 }
+    );
+    io.observe(el);
+    const onVis = () => {
+      visible = document.visibilityState === "visible";
+      visible ? play() : pause();
+    };
+    document.addEventListener("visibilitychange", onVis);
+    play();
 
     return () => {
-      cancelAnimationFrame(raf);
+      pause();
       ro.disconnect();
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVis);
       gl.canvas.remove();
     };
   }, [colors]);
